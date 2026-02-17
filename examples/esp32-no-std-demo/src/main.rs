@@ -77,6 +77,8 @@ fn main() -> ! {
         peripherals.SPI2,
         SpiConfig::default()
             .with_frequency(Rate::from_mhz(80))
+            // NOTE: Some ESP32-S3 boards require SPI mode 0 for ST7789.
+            // If the display stays blank, try `Mode::_0` here.
             .with_mode(Mode::_3),
     )
     .unwrap()
@@ -97,6 +99,7 @@ fn main() -> ! {
         .invert_colors(ColorInversion::Inverted)
         .reset_pin(rst)
         .display_offset(DISPLAY_OFFSET.0, DISPLAY_OFFSET.1)
+        // NOTE: Make sure DISPLAY_SIZE matches your panel (e.g., 200x120).
         .display_size(DISPLAY_SIZE.0, DISPLAY_SIZE.1)
         .orientation(Orientation::new().rotate(Rotation::Deg90))
         .init(&mut delay)
