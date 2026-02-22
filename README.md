@@ -299,6 +299,8 @@ Before opening a pull request, please read the [contributing guidelines](./CONTR
 
 Here are some projects built using Mousefood:
 
+- [AirSniffer](https://github.com/nebelgrau77/airsniffer-esp32c6) - Get information about your indoor
+  climate at a glance.
 - [Tuitar](https://github.com/orhun/tuitar) - A portable guitar training tool.
 - [Mnyaoo32](https://github.com/intuis/mnyaoo32) - An eccentric way to consume IRC messages using ESP32.
 - [Phone-OS](https://github.com/Julien-cpsn/Phone-OS) - A modern phone OS for ESP32 CYD.
