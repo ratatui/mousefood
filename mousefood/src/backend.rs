@@ -213,16 +213,14 @@ where
                 x as i32 * self.font_regular.character_size.width as i32,
                 y as i32 * self.font_regular.character_size.height as i32,
             );
-
+            let mut fg_color =
+                TermColor::new(cell.fg, TermColorType::Foreground, &self.color_theme).into();
+            let mut bg_color =
+                TermColor::new(cell.bg, TermColorType::Background, &self.color_theme).into();
             let mut style_builder = MonoTextStyleBuilder::new()
                 .font(&self.font_regular)
-                .text_color(
-                    TermColor::new(cell.fg, TermColorType::Foreground, &self.color_theme).into(),
-                )
-                .background_color(
-                    TermColor::new(cell.bg, TermColorType::Background, &self.color_theme).into(),
-                );
-
+                .text_color(fg_color)
+                .background_color(bg_color);
             for modifier in cell.modifier.iter() {
                 style_builder = match modifier {
                     style::Modifier::BOLD => match &self.font_bold {
@@ -237,12 +235,21 @@ where
                     style::Modifier::UNDERLINED => style_builder.underline(),
                     style::Modifier::SLOW_BLINK => style_builder, // TODO
                     style::Modifier::RAPID_BLINK => style_builder, // TODO
-                    style::Modifier::REVERSED => style_builder,   // TODO
-                    style::Modifier::HIDDEN => style_builder,     // TODO
+                    style::Modifier::REVERSED => {
+                        core::mem::swap(&mut fg_color, &mut bg_color);
+                        style_builder
+                    }
+                    style::Modifier::HIDDEN => {
+                        fg_color = bg_color;
+                        style_builder
+                    }
                     style::Modifier::CROSSED_OUT => style_builder.strikethrough(),
                     _ => style_builder,
                 }
             }
+            style_builder = style_builder
+                .text_color(fg_color)
+                .background_color(bg_color);
 
             #[cfg(feature = "underline-color")]
             if cell.underline_color != style::Color::Reset {
