@@ -1,6 +1,6 @@
 # ESP32 `std` Demo
 
-Contains examples for `std` demo using LILYGO T-Display. This demo runs a Ratatui interface on the ESP32, showcasing various UI widgets (like `Charts`, `Gauge`, and `Tabs`) while reading physical button presses and monitoring the board's battery voltage.
+Contains examples for `std` demo using LILYGO T-Display. This demo runs a `ratatui` interface on the board, showcasing various UI widgets (like `Charts`, `Gauge`, and `Tabs`) while reading physical button presses and monitoring the board's battery voltage.
 
 ## Pinmap
 
