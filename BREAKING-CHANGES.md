@@ -46,6 +46,33 @@ If you use per-cell underline colors, enable the feature explicitly:
 
 If you don't use underline colors, no changes are needed.
 
+### New fields on `EmbeddedBackendConfig` ([#172])
+
+[#172]: https://github.com/ratatui/mousefood/pull/172
+
+`EmbeddedBackendConfig` has two new fields: `cursor` (`CursorConfig`) and `blink` (`BlinkConfig`,
+behind the `blink` feature flag). Since the struct is exhaustive, this is a breaking change for
+anyone constructing it directly. The `blink` feature is disabled by default due to performance overhead.
+
+#### Migration guide
+
+```diff
+let config = EmbeddedBackendConfig {
+    flush_callback: Box::new(|_| {}),
+    font_regular: default_font,
+    font_bold: None,
+    font_italic: None,
+    vertical_alignment: TerminalAlignment::Start,
+    horizontal_alignment: TerminalAlignment::Start,
+    color_theme: ColorTheme::default(),
++   cursor: CursorConfig::default(),
++   #[cfg(feature = "blink")]
++   blink: BlinkConfig::default(),
+};
+```
+
+If you use `..Default::default()`, no changes are needed.
+
 ## [v0.4.0](https://github.com/ratatui/mousefood/releases/tag/0.4.0)
 
 ### `framebuffer` module is no longer part of the public API ([#149])
