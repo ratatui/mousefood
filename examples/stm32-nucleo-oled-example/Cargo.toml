@@ -1,0 +1,31 @@
+[package]
+name = "stm32_nucleo_oled_example"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+cortex-m = { version = "0.7.7", features = ["critical-section-single-core", "inline-asm"] }
+cortex-m-rt = "0.7.5"
+dht-sensor = "0.3.0"
+embassy-executor = { version = "0.9.1", features = ["arch-cortex-m", "executor-thread"] }
+embassy-stm32 = { version = "0.5.0", features = ["stm32l433rc", "time-driver-any", "exti", "unstable-pac", "memory-x"] }
+embassy-time = { version = "0.5.0", features = ["tick-hz-1_000_000"] }
+embedded-alloc = "0.7.0"
+embedded-graphics = "0.8.2"
+heapless = "0.9.2"
+mousefood = { version = "0.4.0", default-features = false, features = ["fonts"] }
+panic-halt = "1.0.0"
+ratatui = { version = "0.30.0", default-features = false }
+ssd1306 = { version = "0.10.0", features = ["async"] }
+
+[[bin]]
+name = "stm32_nucleo_oled_example"
+test = false
+bench = false
+
+[profile.release]
+opt-level = "z"
+codegen-units = 1
+lto = true
+strip = true
+panic = "abort"
