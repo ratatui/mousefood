@@ -72,7 +72,7 @@ async fn main(_spawner: Spawner) {
             terminal.draw(|f| {
                 let area = f.area();
                 let block = Block::default()
-                    .title("STM32 RataTui")
+                    .title("STM32 Ratatui")
                     .borders(Borders::ALL);
 
                 let paragraph = Paragraph::new("Hello mousefood")
