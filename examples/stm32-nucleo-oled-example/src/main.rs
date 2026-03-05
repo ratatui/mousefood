@@ -9,7 +9,7 @@ use embassy_stm32::{
 };
 use embassy_time::Timer; 
 use panic_halt as _;
-use ssd1306::{prelude::*, I2CDisplayInterface, Ssd1306Async};
+use ssd1306::{I2CDisplayInterface, Ssd1306, prelude::*};
 
 use mousefood::{EmbeddedBackend, EmbeddedBackendConfig};
 use ratatui::{Terminal, layout::Alignment, widgets::{Block, Borders, Paragraph}};
@@ -58,15 +58,23 @@ async fn main(_spawner: Spawner) {
 
     let interface = I2CDisplayInterface::new(i2c);
 
-    let mut display = Ssd1306Async::new(interface, DisplaySize128x32, DisplayRotation::Rotate0)
+    let mut display = Ssd1306::new(interface, DisplaySize128x32, DisplayRotation::Rotate0)
         .into_buffered_graphics_mode();
 
-    display.init().await.unwrap();
+    display.init().unwrap();
 
 
     loop {
         {
-            let backend = EmbeddedBackend::new(&mut display, EmbeddedBackendConfig::default());
+            let backend = EmbeddedBackend::new(
+                &mut display,
+                EmbeddedBackendConfig {
+                    flush_callback: alloc::boxed::Box::new(|d| {
+                        d.flush().unwrap();
+                    }),
+                    ..Default::default()
+                }
+            );
             let mut terminal = Terminal::new(backend).unwrap();
 
             terminal.draw(|f| {
@@ -82,8 +90,6 @@ async fn main(_spawner: Spawner) {
                 f.render_widget(paragraph, area);
             }).unwrap();
         }
-
-        let _ = display.flush().await;
 
         Timer::after_millis(100).await;
     }
