@@ -1,18 +1,16 @@
-# `mousefood` Examples
+# Mousefood Examples
 
-This directory contains the examples of `mousefood`. 
+This directory contains the examples of `mousefood`.
 
-## Examples
+## ESP32 Examples
 
-### ESP32 Examples
+- [ESP32 `std` Demo](./esp32-std-demo/README.md)
+- [ESP32 `no_std` Demo](./esp32-no-std-demo/README.md)
 
-1. [ESP32 `std` Demo](./esp32-std-demo/README.md)
-2. [ESP32 `no_std` Demo](./esp32-no-std-demo/README.md)
+## Waveshare Demo
 
-### Waveshare Demo
+- [EPD Waveshare Demo](./epd-waveshare-demo/README.md)
 
-1. [EPD Waveshare Demo](./epd-waveshare-demo/README.md)
+## Simulator
 
-### Simulator
-
-1. [Simulator Demo](./simulator/README.md)
+- [Simulator Demo](./simulator/README.md)
