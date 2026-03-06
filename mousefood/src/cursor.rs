@@ -26,7 +26,6 @@ pub struct CursorConfig {
     /// Visual style of the cursor.
     pub style: CursorStyle,
     /// Whether the cursor blinks. Uses `BlinkConfig::slow` timing.
-    #[cfg(feature = "blink")]
     pub blink: bool,
     /// Cursor color for non-inverse styles.
     pub color: Rgb888,
@@ -36,7 +35,6 @@ impl Default for CursorConfig {
     fn default() -> Self {
         Self {
             style: CursorStyle::Inverse,
-            #[cfg(feature = "blink")]
             blink: true,
             color: Rgb888::WHITE,
         }

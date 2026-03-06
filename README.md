@@ -146,8 +146,9 @@ Inverse mode requires the `framebuffer` feature and falls back to underline with
 let config = EmbeddedBackendConfig {
     cursor: CursorConfig {
         style: CursorStyle::Japanese,
+        blink: true,
         color: Rgb888::WHITE, 
-        ..Default::default()
+        
     },
     ..Default::default()
 };
@@ -166,6 +167,7 @@ Blink timing is configurable:
 
 ```rust,ignore
 let config = EmbeddedBackendConfig {
+    #[cfg(feature = "blink")]
     blink: BlinkConfig {
         fps: 30,
         slow: BlinkTiming { blinks_per_sec: 1, duty_percent: 15 },
