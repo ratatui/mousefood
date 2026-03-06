@@ -27,7 +27,7 @@ Pinout images are taken from the ARM-Mbed website <https://os.mbed.com/platforms
 
 - **Clock Configuration:**  
   The MCU runs at **80 MHz** using the internal **HSI (16 MHz)** oscillator
-irouted through the PLL (Phase Locked Loop).
+routed through the PLL (Phase Locked Loop).
 
 - **Display Driver:**  
   The display uses the `ssd1306` crate in **buffered graphics mode**, meaning
