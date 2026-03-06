@@ -185,7 +185,7 @@ cursor is always visible.
 Mousefood can be run in a simulator using
 [embedded-graphics-simulator](https://crates.io/crates/embedded-graphics-simulator) crate.
 
-![Screenshot of a window running the simulator with a mousefood application](https://github.com/ratatui/mousefood/blob/66d4010deed18f755cc3148a7f682f4119b7f664/assets/simulator.png?raw=true)
+![GIF of a window running the simulator with a mousefood application](assets/blink.gif)
 
 Run simulator example:
 
