@@ -79,6 +79,11 @@ jobs:
             dir: examples/epd-waveshare-demo
             target: ""
             setup_xtensa: true
+          # STM32-Nucleo OLED Demo
+          - name: stm32-nucleo-oled-example
+            dir: examples/stm32-nucleo-oled-example
+            target: "thumbv7em-none-eabihf"
+            setup_xtensa: false
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -94,6 +99,9 @@ jobs:
           default: true
           buildtargets: esp32
           ldproxy: true
+      - name: Setup thumbv7em-none-eabihf target (STM32)
+        if: ${{ matrix.project.target != '' && matrix.project.setup_xtensa == false }}
+        run: rustup target add ${{ matrix.project.target }}
       - name: Cache Cargo dependencies
         uses: Swatinem/rust-cache@v2
       - name: Run Clippy
