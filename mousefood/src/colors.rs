@@ -1,6 +1,6 @@
 use crate::macros::for_all_rgb_colors;
 use embedded_graphics::pixelcolor::{
-    Bgr555, Bgr565, Bgr666, Bgr888, BinaryColor, Rgb555, Rgb565, Rgb666, Rgb888, RgbColor,
+    Bgr555, Bgr565, Bgr666, Bgr888, BinaryColor, Gray4, Rgb555, Rgb565, Rgb666, Rgb888, RgbColor,
 };
 use ratatui_core::style::Color;
 
@@ -241,13 +241,21 @@ impl From<TermColor<'_>> for epd_waveshare::color::TriColor {
     }
 }
 
+#[cfg(feature = "lilygo-epd47")]
+impl<'a> From<TermColor<'a>> for Gray4 {
+    fn from(color: TermColor<'a>) -> Self {
+        let rgb: Rgb888 = color.into();
+        rgb.into()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
-    use Color::*;
-    use TermColorType::*;
     use paste::paste;
     use rstest::rstest;
+    use Color::*;
+    use TermColorType::*;
 
     const TEST_THEME: ColorTheme = ColorTheme::ansi();
 
