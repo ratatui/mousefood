@@ -1,2 +1,4 @@
 [default.extend-words]
 ratatui = "ratatui"
+hsi = "hsi"
+HSI = "HSI"

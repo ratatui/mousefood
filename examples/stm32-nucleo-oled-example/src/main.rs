@@ -15,10 +15,14 @@ use panic_halt as _;
 use ssd1306::{I2CDisplayInterface, Ssd1306, prelude::*};
 
 use mousefood::{EmbeddedBackend, EmbeddedBackendConfig};
-use ratatui::{Terminal, layout::Alignment, widgets::{Block, Borders, Paragraph}};
+use ratatui::{
+    Terminal,
+    layout::Alignment,
+    widgets::{Block, Borders, Paragraph},
+};
 
-use embedded_alloc::LlffHeap as Heap;
 use core::mem::MaybeUninit;
+use embedded_alloc::LlffHeap as Heap;
 
 // Heap allocator used by ratatui + mousefood
 #[global_allocator]
@@ -32,13 +36,12 @@ static mut HEAP_MEM: [MaybeUninit<u8>; HEAP_SIZE] = [MaybeUninit::uninit(); HEAP
 
 // Interrupt bindings required by Embassy I2C driver
 bind_interrupts!(struct Irqs {
-    I2C1_EV => i2c::EventInterruptHandler<peripherals::I2C1>;     
-    I2C1_ER => i2c::ErrorInterruptHandler<peripherals::I2C1>;     
+    I2C1_EV => i2c::EventInterruptHandler<peripherals::I2C1>;
+    I2C1_ER => i2c::ErrorInterruptHandler<peripherals::I2C1>;
 });
 
 #[embassy_executor::main]
 async fn main(_spawner: Spawner) {
-
     // Initialize the global heap allocator
     unsafe {
         HEAP.init(core::ptr::addr_of_mut!(HEAP_MEM) as usize, HEAP_SIZE);
@@ -73,32 +76,18 @@ async fn main(_spawner: Spawner) {
     i2c_config.frequency = Hertz::khz(100);
 
     let i2c = embassy_stm32::i2c::I2c::new(
-        p.I2C1,
-
-        // I2C1 pins
+        p.I2C1, // I2C1 pins
         // PB8 = SCL (D15)
         // PB7 = SDA (D14)
-        p.PB8,
-        p.PB7,
-
-        Irqs,
-
-        // DMA channels used for I2C transfers
-        p.DMA1_CH6,
-        p.DMA1_CH7,
-
-        i2c_config,
+        p.PB8, p.PB7, Irqs, // DMA channels used for I2C transfers
+        p.DMA1_CH6, p.DMA1_CH7, i2c_config,
     );
 
     // Initialize SSD1306 display
     let interface = I2CDisplayInterface::new(i2c);
 
-    let mut display = Ssd1306::new(
-        interface,
-        DisplaySize128x32,
-        DisplayRotation::Rotate0
-    )
-    .into_buffered_graphics_mode();
+    let mut display = Ssd1306::new(interface, DisplaySize128x32, DisplayRotation::Rotate0)
+        .into_buffered_graphics_mode();
 
     display.init().unwrap();
 
@@ -106,14 +95,13 @@ async fn main(_spawner: Spawner) {
     let backend = EmbeddedBackend::new(
         &mut display,
         EmbeddedBackendConfig {
-
             // Push framebuffer to OLED after each draw
             flush_callback: alloc::boxed::Box::new(|d| {
                 d.flush().unwrap();
             }),
 
             ..Default::default()
-        }
+        },
     );
 
     let mut terminal = Terminal::new(backend).unwrap();
@@ -121,7 +109,6 @@ async fn main(_spawner: Spawner) {
     // UI render loop
     loop {
         let _ = terminal.draw(|f| {
-
             let area = f.area();
 
             let block = Block::default()
