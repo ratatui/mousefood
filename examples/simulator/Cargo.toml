@@ -15,5 +15,5 @@ name = "minimal"
 path = "src/minimal.rs"
 
 [[bin]]
-name = "mods"
-path = "src/mods.rs"
+name = "modifiers"
+path = "src/modifiers.rs"

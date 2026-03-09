@@ -22,7 +22,7 @@ cargo run -p simulator
 For the modifiers demo, run:
 
 ```shell
-cargo run -p simulator --bin mods
+cargo run -p simulator --bin modifiers
 ```
 
 A window will open with the simulator running.

@@ -14,7 +14,7 @@
 //! To start this demo, simply run:
 //!
 //! ```shell
-//! cargo run -p simulator --bin mods
+//! cargo run -p simulator --bin modifiers
 //! ```
 //!
 //! A window will open with the simulator running.

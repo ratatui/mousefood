@@ -66,7 +66,6 @@ let config = EmbeddedBackendConfig {
     horizontal_alignment: TerminalAlignment::Start,
     color_theme: ColorTheme::default(),
 +   cursor: CursorConfig::default(),
-+   #[cfg(feature = "blink")]
 +   blink: BlinkConfig::default(),
 };
 ```
