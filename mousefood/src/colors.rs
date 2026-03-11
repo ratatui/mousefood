@@ -252,10 +252,10 @@ impl<'a> From<TermColor<'a>> for Gray4 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use paste::paste;
-    use rstest::rstest;
     use Color::*;
     use TermColorType::*;
+    use paste::paste;
+    use rstest::rstest;
 
     const TEST_THEME: ColorTheme = ColorTheme::ansi();
 

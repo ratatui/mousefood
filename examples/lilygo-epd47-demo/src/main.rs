@@ -11,7 +11,7 @@ use embedded_graphics::prelude::RgbColor;
 #[allow(unused_imports)]
 use esp_backtrace as _;
 use esp_hal::{delay::Delay, main};
-use lilygo_epd47::{pin_config, Display, DrawMode};
+use lilygo_epd47::{Display, DrawMode, pin_config};
 
 use mousefood::prelude::*;
 use ratatui::style::Stylize;
