@@ -52,7 +52,7 @@ If you don't use underline colors, no changes are needed.
 
 `EmbeddedBackendConfig` has two new fields: `cursor` (`CursorConfig`) and `blink` (`BlinkConfig`,
 behind the `blink` feature flag). Since the struct is exhaustive, this is a breaking change for
-anyone constructing it directly. The `blink` feature is disabled by default due to performance overhead.
+anyone constructing it directly.
 
 #### Migration guide
 
