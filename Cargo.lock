@@ -1851,8 +1851,9 @@ dependencies = [
 
 [[package]]
 name = "lilygo-epd47"
-version = "0.5.0"
-source = "git+https://github.com/pyaillet/lilygo-epd47-rs?tag=v0.6.0-fork#941fda77ac51fbf76b605e8274fc1e600e140e25"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a72710f872095a976b7513e0afd27d8861d31d26492165ffdcede637fd01b653"
 dependencies = [
  "critical-section",
  "embedded-graphics-core",
