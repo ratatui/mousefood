@@ -12,15 +12,16 @@ use crate::ratatui_logo::RatatuiLogoApp;
 use crate::tabs::TabsApp;
 use crate::voltage::VoltageApp;
 use esp_idf_svc::hal::adc::Resolution;
-use esp_idf_svc::hal::adc::attenuation::DB_11;
+use esp_idf_svc::hal::adc::attenuation::DB_12;
 use esp_idf_svc::hal::adc::oneshot::config::{AdcChannelConfig, Calibration};
 use esp_idf_svc::hal::adc::oneshot::{AdcChannelDriver, AdcDriver};
 use esp_idf_svc::hal::delay::Ets;
-use esp_idf_svc::hal::gpio::{AnyIOPin, InterruptType, PinDriver};
-use esp_idf_svc::hal::prelude::*;
+use esp_idf_svc::hal::gpio::{AnyIOPin, InterruptType, PinDriver, Pull};
+use esp_idf_svc::hal::peripherals::Peripherals;
 use esp_idf_svc::hal::spi::config::MODE_3;
 use esp_idf_svc::hal::spi::{SpiConfig, SpiDeviceDriver, SpiDriverConfig};
 use esp_idf_svc::hal::task::notification::Notification;
+use esp_idf_svc::hal::units::*;
 use mipidsi::Builder;
 use mipidsi::interface::SpiInterface;
 use mipidsi::models::ST7789;
@@ -78,7 +79,7 @@ fn main() {
         .expect("Failed to init display");
 
     // Setup button interrupt
-    let mut button = PinDriver::input(peripherals.pins.gpio0).unwrap();
+    let mut button = PinDriver::input(peripherals.pins.gpio0, Pull::Floating).unwrap();
     button.set_interrupt_type(InterruptType::NegEdge).unwrap();
     let mut notification = Notification::new();
     let notifier = notification.notifier();
@@ -96,7 +97,7 @@ fn main() {
         &adc_driver,
         peripherals.pins.gpio34,
         &AdcChannelConfig {
-            attenuation: DB_11,
+            attenuation: DB_12,
             calibration: Calibration::Line,
             resolution: Resolution::Resolution12Bit,
         },
@@ -137,7 +138,6 @@ fn main() {
                 &mut terminal,
                 &mut notification,
                 &mut button,
-                &adc_driver,
                 &mut battery_adc_channel,
             )
             .unwrap();
