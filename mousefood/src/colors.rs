@@ -1,6 +1,8 @@
 use crate::macros::for_all_rgb_colors;
+#[cfg(feature = "lilygo-epd47")]
+use embedded_graphics::pixelcolor::Gray4;
 use embedded_graphics::pixelcolor::{
-    Bgr555, Bgr565, Bgr666, Bgr888, BinaryColor, Gray4, Rgb555, Rgb565, Rgb666, Rgb888, RgbColor,
+    Bgr555, Bgr565, Bgr666, Bgr888, BinaryColor, Rgb555, Rgb565, Rgb666, Rgb888, RgbColor,
 };
 use ratatui_core::style::Color;
 
