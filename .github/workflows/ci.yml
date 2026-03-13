@@ -99,7 +99,7 @@ jobs:
           default: true
           buildtargets: esp32
           ldproxy: true
-      - name: Setup thumbv7em-none-eabihf target (STM32)
+      - name: Setup target
         if: ${{ matrix.project.target != '' && matrix.project.setup_xtensa == false }}
         run: rustup target add ${{ matrix.project.target }}
       - name: Cache Cargo dependencies
