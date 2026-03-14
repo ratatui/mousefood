@@ -11,7 +11,7 @@ esp-hal                = { version = "1.0.0", features = ["esp32s3", "unstable",
 
 critical-section = "1.2.0"
 esp-alloc        = "0.9.0"
-lilygo-epd47 = { workspace = true }
+lilygo-epd47     = "1.0.0"
 
 ratatui = { workspace = true }
 ratatui-core = { workspace = true }

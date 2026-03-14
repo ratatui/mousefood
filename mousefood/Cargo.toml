@@ -19,7 +19,6 @@ embedded-graphics.workspace = true
 embedded-graphics-unicodefonts = { workspace = true, optional = true }
 weact-studio-epd = { workspace = true, optional = true }
 epd-waveshare = { workspace = true, optional = true }
-lilygo-epd47 = { workspace = true, optional = true }
 
 [dev-dependencies]
 ratatui.workspace = true
@@ -32,7 +31,7 @@ std = ["thiserror/std", "ratatui-core/std"]
 fonts = ["dep:embedded-graphics-unicodefonts"]
 epd-weact = ["dep:weact-studio-epd"]
 epd-waveshare = ["dep:epd-waveshare"]
-lilygo-epd47 = ["dep:lilygo-epd47"]
+lilygo-epd47 = []
 framebuffer = []
 blink = []
 underline-color = ["ratatui-core/underline-color"]
