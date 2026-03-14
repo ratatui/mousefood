@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+      - feat/add_ci
   pull_request:
     branches:
       - main
@@ -77,6 +78,11 @@ jobs:
           # EPD Waveshare demo
           - name: epd-waveshare-demo
             dir: examples/epd-waveshare-demo
+            target: ""
+            setup_xtensa: true
+          # Lilygo-epd47 demo
+          - name: lilygo-epd47-demo
+            dir: examples/lilygo-epd47-demo
             target: ""
             setup_xtensa: true
     steps:

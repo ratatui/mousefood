@@ -1876,10 +1876,8 @@ dependencies = [
  "esp-println",
  "lilygo-epd47",
  "mousefood",
- "profont",
  "ratatui",
  "ratatui-core",
- "u8g2-fonts",
 ]
 
 [[package]]
@@ -2287,15 +2285,6 @@ dependencies = [
  "syn 2.0.114",
  "version_check",
  "yansi",
-]
-
-[[package]]
-name = "profont"
-version = "0.7.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "016681370a9dd6e7ddb4c1a959922fd59dc45e5ebaa5ff5b13090267898ced34"
-dependencies = [
- "embedded-graphics",
 ]
 
 [[package]]
@@ -3041,16 +3030,6 @@ name = "typenum"
 version = "1.19.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "562d481066bde0658276a35467c4af00bdc6ee726305698a55b86e61d7ad82bb"
-
-[[package]]
-name = "u8g2-fonts"
-version = "0.7.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "825f57be1429fd60f335a4aade11e128a7ae4f89d75ca3a003cb8410a91093f7"
-dependencies = [
- "embedded-graphics",
- "embedded-graphics-core",
-]
 
 [[package]]
 name = "ufmt-write"
