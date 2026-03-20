@@ -1,6 +1,6 @@
 use crate::lorem::LOREM_IPSUM;
 use esp_idf_svc::hal::delay;
-use esp_idf_svc::hal::gpio::{Gpio0, Input, PinDriver};
+use esp_idf_svc::hal::gpio::{Input, PinDriver};
 use esp_idf_svc::hal::task::notification::Notification;
 use rand::{RngExt, rng};
 use ratatui::prelude::*;
@@ -31,7 +31,7 @@ impl<B: Backend> TabsApp<B> {
         mut self,
         terminal: &mut Terminal<B>,
         notification: &mut Notification,
-        button: &mut PinDriver<Gpio0, Input>,
+        button: &mut PinDriver<'_, Input>,
     ) -> Result<(), Box<dyn Error>>
     where
         B::Error: 'static,

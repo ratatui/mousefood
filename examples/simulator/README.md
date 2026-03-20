@@ -13,10 +13,16 @@ before running the application.
 
 ## Run
 
-To start this demo, simply run:
+To start the minimal demo, simply run:
 
 ```shell
 cargo run -p simulator
+```
+
+For the modifiers demo, run:
+
+```shell
+cargo run -p simulator --bin modifiers
 ```
 
 A window will open with the simulator running.

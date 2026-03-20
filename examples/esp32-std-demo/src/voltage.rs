@@ -1,7 +1,8 @@
-use esp_idf_svc::hal::adc::ADC1;
+use core::borrow::Borrow;
 use esp_idf_svc::hal::adc::oneshot::{AdcChannelDriver, AdcDriver};
+use esp_idf_svc::hal::adc::{ADCCH6, ADCU1};
 use esp_idf_svc::hal::delay;
-use esp_idf_svc::hal::gpio::{Gpio0, Gpio34, Input, PinDriver};
+use esp_idf_svc::hal::gpio::{Input, PinDriver};
 use esp_idf_svc::hal::task::notification::Notification;
 use ratatui::prelude::*;
 use ratatui::widgets::{Block, BorderType, Padding};
@@ -20,23 +21,23 @@ impl<B: Backend> VoltageApp<B> {
         }
     }
 
-    pub fn run<'a>(
+    pub fn run<'a, M>(
         mut self,
         terminal: &mut Terminal<B>,
         notification: &mut Notification,
-        button: &mut PinDriver<Gpio0, Input>,
-        adc_driver: &AdcDriver<'a, ADC1>,
-        adc_channel: &mut AdcChannelDriver<'a, Gpio34, &AdcDriver<'a, ADC1>>,
+        button: &mut PinDriver<'_, Input>,
+        adc_channel: &mut AdcChannelDriver<'a, ADCCH6<ADCU1>, M>,
     ) -> Result<(), Box<dyn Error>>
     where
         B::Error: 'static,
+        M: Borrow<AdcDriver<'a, ADCU1>>,
     {
         button.enable_interrupt().unwrap();
         loop {
             if notification.wait(delay::NON_BLOCK).is_some() {
                 return Ok(());
             }
-            if let Ok(voltage) = adc_driver.read(adc_channel) {
+            if let Ok(voltage) = adc_channel.read() {
                 terminal.draw(|frame| self.draw(frame, 2 * voltage))?;
             }
         }

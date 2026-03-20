@@ -34,6 +34,14 @@ pub struct HeapBuffer<C: PixelColor + Copy> {
     bounding_box: Rectangle,
 }
 
+impl<C: PixelColor + Copy> HeapBuffer<C> {
+    /// Returns the color of the pixel at the given point.
+    pub fn get_pixel(&self, point: embedded_graphics::geometry::Point) -> C {
+        let idx = (point.y * self.bounding_box.size.width as i32 + point.x) as usize;
+        self.data[idx]
+    }
+}
+
 impl<C: PixelColor + for<'a> From<TermColor<'a>>> HeapBuffer<C> {
     /// Creates a new framebuffer with the specified dimensions.
     ///
