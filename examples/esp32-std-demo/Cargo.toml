@@ -24,7 +24,7 @@ default = []
 experimental = ["esp-idf-svc/experimental"]
 
 [dependencies]
-esp-idf-svc = { version = "0.51", features = ["critical-section"] }
+esp-idf-svc = { version = "0.52", features = ["critical-section"] }
 time = "0.3.45"
 rand = "0.10.0"
 mipidsi = "0.10.0"

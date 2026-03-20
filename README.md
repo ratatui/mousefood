@@ -135,12 +135,57 @@ Mousefood includes popular color themes that can be used directly:
 - `ColorTheme::ansi()` - Standard ANSI colors (default)
 - `ColorTheme::tokyo_night()` - Tokyo Night dark theme with blue/purple tones
 
+### Cursor and blink
+
+Mousefood supports configurable cursor styles and text blinking.
+
+The cursor style can be set to `Inverse` (default), `Underline`, `Outline`, or `Japanese`.
+Inverse mode requires the `framebuffer` feature and falls back to underline without it.
+
+```rust,ignore
+let config = EmbeddedBackendConfig {
+    cursor: CursorConfig {
+        style: CursorStyle::Japanese,
+        blink: true,
+        color: Rgb888::WHITE, 
+        
+    },
+    ..Default::default()
+};
+```
+
+Text blink modifiers (`SLOW_BLINK`, `RAPID_BLINK`) and cursor blinking are
+behind the `blink` feature flag to avoid unnecessary computation and memory
+usage when not needed:
+
+```toml
+[dependencies]
+mousefood = { version = "*", features = ["blink"] }
+```
+
+Blink timing is configurable:
+
+```rust,ignore
+let config = EmbeddedBackendConfig {
+    #[cfg(feature = "blink")]
+    blink: BlinkConfig {
+        fps: 30,
+        slow: BlinkTiming { blinks_per_sec: 1, duty_percent: 15 },
+        fast: BlinkTiming { blinks_per_sec: 3, duty_percent: 50 },
+    },
+    ..Default::default()
+};
+```
+
+Without the `blink` feature, blink modifiers are silently ignored and the
+cursor is always visible.
+
 ### Simulator
 
 Mousefood can be run in a simulator using
 [embedded-graphics-simulator](https://crates.io/crates/embedded-graphics-simulator) crate.
 
-![Screenshot of a window running the simulator with a mousefood application](https://github.com/ratatui/mousefood/blob/66d4010deed18f755cc3148a7f682f4119b7f664/assets/simulator.png?raw=true)
+![GIF of a window running the simulator with a mousefood application](assets/blink.gif)
 
 Run simulator example:
 

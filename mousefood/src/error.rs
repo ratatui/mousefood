@@ -1,5 +1,8 @@
 //! Mousefood `Error` enum.
 
+/// A `Result` type alias with [`Error`] as the default error type.
+pub type Result<T, E = Error> = core::result::Result<T, E>;
+
 /// Represents backend error.
 #[derive(thiserror::Error, Debug)]
 pub enum Error {

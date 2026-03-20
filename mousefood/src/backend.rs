@@ -1,8 +1,11 @@
-use alloc::boxed::Box;
-use core::marker::PhantomData;
-
 use crate::colors::*;
+use crate::cursor::{Cursor, CursorConfig};
 use crate::default_font;
+use crate::error::Result;
+use alloc::boxed::Box;
+#[cfg(feature = "blink")]
+use alloc::collections::BTreeMap;
+use core::marker::PhantomData;
 use embedded_graphics::Drawable;
 use embedded_graphics::draw_target::DrawTarget;
 use embedded_graphics::geometry::{self, Dimensions};
@@ -22,6 +25,90 @@ pub enum TerminalAlignment {
     Center,
     /// Alignment with the end of the terminal: right or bottom.
     End,
+}
+
+/// Timing parameters for a single blink pattern.
+#[cfg(feature = "blink")]
+#[derive(Clone, Copy)]
+pub struct BlinkTiming {
+    /// How many times per second the element toggles.
+    pub blinks_per_sec: u16,
+    /// Percentage of each cycle spent hidden (0–100).
+    /// e.g. 15 means hidden 15% of each cycle.
+    pub duty_percent: u16,
+    hidden: bool,
+}
+
+#[cfg(feature = "blink")]
+impl BlinkTiming {
+    /// Returns `true` if the element is currently hidden.
+    pub fn is_hidden(&self) -> bool {
+        self.hidden
+    }
+
+    /// Update hidden state based on the current frame count and FPS.
+    fn update(&mut self, frame_count: u16, fps: u16) {
+        if self.blinks_per_sec == 0 || fps == 0 {
+            self.hidden = false;
+            return;
+        }
+        let cycle_len = fps / self.blinks_per_sec;
+        if cycle_len == 0 {
+            self.hidden = false;
+            return;
+        }
+        let pos = frame_count % cycle_len;
+        let hidden_frames = ((self.duty_percent * cycle_len + 50) / 100).max(1);
+        self.hidden = pos >= cycle_len - hidden_frames;
+    }
+}
+
+/// Blink configuration for text modifiers and cursor.
+///
+/// Owns all blink state. Call [`BlinkConfig::tick`] once per frame to advance.
+#[cfg(feature = "blink")]
+#[derive(Clone, Copy)]
+pub struct BlinkConfig {
+    /// Display refresh rate. Converts frame counts to time.
+    pub fps: u16,
+    /// Timing for [`Modifier::SLOW_BLINK`] and cursor blink.
+    pub slow: BlinkTiming,
+    /// Timing for [`Modifier::RAPID_BLINK`].
+    pub fast: BlinkTiming,
+    prev_state: (bool, bool),
+}
+
+#[cfg(feature = "blink")]
+impl BlinkConfig {
+    /// Advance blink state for the current frame. Returns `true` if visibility changed.
+    pub fn tick(&mut self, frame_count: u16) -> bool {
+        self.slow.update(frame_count, self.fps);
+        self.fast.update(frame_count, self.fps);
+        let state = (self.slow.hidden, self.fast.hidden);
+        let toggled = state != self.prev_state;
+        self.prev_state = state;
+        toggled
+    }
+}
+
+#[cfg(feature = "blink")]
+impl Default for BlinkConfig {
+    fn default() -> Self {
+        Self {
+            fps: 30,
+            slow: BlinkTiming {
+                blinks_per_sec: 1,
+                duty_percent: 15,
+                hidden: false,
+            },
+            fast: BlinkTiming {
+                blinks_per_sec: 3,
+                duty_percent: 50,
+                hidden: false,
+            },
+            prev_state: (false, false),
+        }
+    }
 }
 
 /// Embedded backend configuration.
@@ -49,6 +136,13 @@ where
 
     /// Color theme that maps Ratatui colors to display pixels.
     pub color_theme: ColorTheme,
+
+    /// Cursor appearance and blink behavior.
+    pub cursor: CursorConfig,
+
+    /// Blink timing for text modifiers and cursor.
+    #[cfg(feature = "blink")]
+    pub blink: BlinkConfig,
 }
 
 impl<D, C> Default for EmbeddedBackendConfig<D, C>
@@ -65,6 +159,9 @@ where
             vertical_alignment: TerminalAlignment::Start,
             horizontal_alignment: TerminalAlignment::Start,
             color_theme: ColorTheme::default(),
+            cursor: CursorConfig::default(),
+            #[cfg(feature = "blink")]
+            blink: BlinkConfig::default(),
         }
     }
 }
@@ -116,6 +213,13 @@ where
     columns_rows: layout::Size,
     pixels: layout::Size,
     color_theme: ColorTheme,
+    cursor: Cursor,
+    #[cfg(feature = "blink")]
+    frame_count: u16,
+    #[cfg(feature = "blink")]
+    blink_config: BlinkConfig,
+    #[cfg(feature = "blink")]
+    blink_cells: BTreeMap<(u16, u16), ratatui_core::buffer::Cell>,
 }
 
 impl<'display, D, C> EmbeddedBackend<'display, D, C>
@@ -135,6 +239,9 @@ where
             vertical_alignment,
             horizontal_alignment,
             color_theme,
+            cursor,
+            #[cfg(feature = "blink")]
+            blink,
         } = config;
         let pixels = layout::Size {
             width: display.bounding_box().size.width as u16,
@@ -146,12 +253,12 @@ where
 
         let off_x = match horizontal_alignment {
             TerminalAlignment::Start => 0,
-            TerminalAlignment::Center => extra_x / 2, //best effort, might be 1/2 pixel off
+            TerminalAlignment::Center => extra_x / 2,
             TerminalAlignment::End => extra_x,
         } as i32;
         let off_y = match vertical_alignment {
             TerminalAlignment::Start => 0,
-            TerminalAlignment::Center => extra_y / 2, //best effort, might be 1/2 pixel off
+            TerminalAlignment::Center => extra_y / 2,
             TerminalAlignment::End => extra_y,
         } as i32;
 
@@ -173,6 +280,13 @@ where
             },
             pixels,
             color_theme,
+            cursor: Cursor::new(cursor),
+            #[cfg(feature = "blink")]
+            frame_count: 0,
+            #[cfg(feature = "blink")]
+            blink_config: blink,
+            #[cfg(feature = "blink")]
+            blink_cells: BTreeMap::new(),
         }
     }
 
@@ -195,8 +309,6 @@ where
     }
 }
 
-type Result<T, E = crate::error::Error> = core::result::Result<T, E>;
-
 impl<D, C> Backend for EmbeddedBackend<'_, D, C>
 where
     D: DrawTarget<Color = C> + 'static,
@@ -208,91 +320,41 @@ where
     where
         I: Iterator<Item = (u16, u16, &'a ratatui_core::buffer::Cell)>,
     {
-        for (x, y, cell) in content {
-            let position = geometry::Point::new(
-                x as i32 * self.font_regular.character_size.width as i32,
-                y as i32 * self.font_regular.character_size.height as i32,
-            );
-
-            let mut style_builder = MonoTextStyleBuilder::new()
-                .font(&self.font_regular)
-                .text_color(
-                    TermColor::new(cell.fg, TermColorType::Foreground, &self.color_theme).into(),
-                )
-                .background_color(
-                    TermColor::new(cell.bg, TermColorType::Background, &self.color_theme).into(),
-                );
-
-            for modifier in cell.modifier.iter() {
-                style_builder = match modifier {
-                    style::Modifier::BOLD => match &self.font_bold {
-                        None => style_builder,
-                        Some(font) => style_builder.font(font),
-                    },
-                    style::Modifier::DIM => style_builder, // TODO
-                    style::Modifier::ITALIC => match &self.font_italic {
-                        None => style_builder,
-                        Some(font) => style_builder.font(font),
-                    },
-                    style::Modifier::UNDERLINED => style_builder.underline(),
-                    style::Modifier::SLOW_BLINK => style_builder, // TODO
-                    style::Modifier::RAPID_BLINK => style_builder, // TODO
-                    style::Modifier::REVERSED => style_builder,   // TODO
-                    style::Modifier::HIDDEN => style_builder,     // TODO
-                    style::Modifier::CROSSED_OUT => style_builder.strikethrough(),
-                    _ => style_builder,
-                }
+        #[cfg(feature = "blink")]
+        {
+            self.frame_count = self.frame_count.wrapping_add(1);
+            let blink_toggled = self.blink_config.tick(self.frame_count);
+            if blink_toggled {
+                self.redraw_blink_cells()?;
             }
-
-            #[cfg(feature = "underline-color")]
-            if cell.underline_color != style::Color::Reset {
-                style_builder = style_builder.underline_with_color(
-                    TermColor::new(
-                        cell.underline_color,
-                        TermColorType::Foreground,
-                        &self.color_theme,
-                    )
-                    .into(),
-                );
-            }
-
-            Text::with_baseline(
-                cell.symbol(),
-                position + self.char_offset,
-                style_builder.build(),
-                embedded_graphics::text::Baseline::Top,
-            )
-            .draw(
-                #[cfg(feature = "framebuffer")]
-                &mut self.buffer,
-                #[cfg(not(feature = "framebuffer"))]
-                self.display,
-            )
-            .map_err(|_| crate::error::Error::DrawError)?;
         }
+
+        for (x, y, cell) in content {
+            #[cfg(feature = "blink")]
+            self.track_blink_cell(x, y, cell);
+
+            self.draw_cell(x, y, cell)?;
+        }
+
         Ok(())
     }
 
     fn hide_cursor(&mut self) -> Result<()> {
-        // TODO
+        self.cursor.visible = false;
         Ok(())
     }
 
     fn show_cursor(&mut self) -> Result<()> {
-        // TODO
+        self.cursor.visible = true;
         Ok(())
     }
 
     fn get_cursor_position(&mut self) -> Result<layout::Position> {
-        // TODO
-        Ok(layout::Position::new(0, 0))
+        Ok(self.cursor.position)
     }
 
-    fn set_cursor_position<P: Into<layout::Position>>(
-        &mut self,
-        #[allow(unused_variables)] position: P,
-    ) -> Result<()> {
-        // TODO
+    fn set_cursor_position<P: Into<layout::Position>>(&mut self, position: P) -> Result<()> {
+        self.cursor.position = position.into();
         Ok(())
     }
 
@@ -352,7 +414,147 @@ where
         self.display
             .fill_contiguous(&self.display.bounding_box(), &self.buffer)
             .map_err(|_| crate::error::Error::DrawError)?;
+
+        if self.cursor.visible {
+            #[cfg(feature = "blink")]
+            let hidden = self.cursor.config.blink && self.blink_config.slow.is_hidden();
+            #[cfg(not(feature = "blink"))]
+            let hidden = false;
+
+            if !hidden {
+                let char_w = self.font_regular.character_size.width as i32;
+                let char_h = self.font_regular.character_size.height as i32;
+                self.cursor.draw(
+                    self.display,
+                    #[cfg(feature = "framebuffer")]
+                    &self.buffer,
+                    self.char_offset,
+                    char_w,
+                    char_h,
+                )?;
+            }
+        }
+
         (self.flush_callback)(self.display);
+        Ok(())
+    }
+}
+
+impl<D, C> EmbeddedBackend<'_, D, C>
+where
+    D: DrawTarget<Color = C> + 'static,
+    C: PixelColor + Into<Rgb888> + From<Rgb888> + for<'a> From<TermColor<'a>> + 'static,
+{
+    fn draw_cell(&mut self, x: u16, y: u16, cell: &ratatui_core::buffer::Cell) -> Result<()> {
+        let position = geometry::Point::new(
+            x as i32 * self.font_regular.character_size.width as i32,
+            y as i32 * self.font_regular.character_size.height as i32,
+        );
+        let mut fg_color: C =
+            TermColor::new(cell.fg, TermColorType::Foreground, &self.color_theme).into();
+        let mut bg_color: C =
+            TermColor::new(cell.bg, TermColorType::Background, &self.color_theme).into();
+        let mut style_builder = MonoTextStyleBuilder::new()
+            .font(&self.font_regular)
+            .text_color(fg_color)
+            .background_color(bg_color);
+
+        for modifier in cell.modifier.iter() {
+            style_builder = match modifier {
+                style::Modifier::BOLD => match &self.font_bold {
+                    None => style_builder,
+                    Some(font) => style_builder.font(font),
+                },
+                style::Modifier::DIM => {
+                    fg_color = dim_color(fg_color);
+                    style_builder
+                }
+                style::Modifier::ITALIC => match &self.font_italic {
+                    None => style_builder,
+                    Some(font) => style_builder.font(font),
+                },
+                style::Modifier::UNDERLINED => style_builder.underline(),
+                #[cfg(feature = "blink")]
+                style::Modifier::SLOW_BLINK => {
+                    if self.blink_config.slow.is_hidden() {
+                        fg_color = bg_color;
+                    }
+                    style_builder
+                }
+                #[cfg(feature = "blink")]
+                style::Modifier::RAPID_BLINK => {
+                    if self.blink_config.fast.is_hidden() {
+                        fg_color = bg_color;
+                    }
+                    style_builder
+                }
+                style::Modifier::REVERSED => {
+                    core::mem::swap(&mut fg_color, &mut bg_color);
+                    style_builder
+                }
+                style::Modifier::HIDDEN => {
+                    fg_color = bg_color;
+                    style_builder
+                }
+                style::Modifier::CROSSED_OUT => style_builder.strikethrough(),
+                _ => style_builder,
+            }
+        }
+
+        style_builder = style_builder
+            .text_color(fg_color)
+            .background_color(bg_color);
+
+        #[cfg(feature = "underline-color")]
+        if cell.underline_color != style::Color::Reset {
+            style_builder = style_builder.underline_with_color(
+                TermColor::new(
+                    cell.underline_color,
+                    TermColorType::Foreground,
+                    &self.color_theme,
+                )
+                .into(),
+            );
+        }
+
+        Text::with_baseline(
+            cell.symbol(),
+            position + self.char_offset,
+            style_builder.build(),
+            embedded_graphics::text::Baseline::Top,
+        )
+        .draw(
+            #[cfg(feature = "framebuffer")]
+            &mut self.buffer,
+            #[cfg(not(feature = "framebuffer"))]
+            self.display,
+        )
+        .map_err(|_| crate::error::Error::DrawError)?;
+
+        Ok(())
+    }
+
+    #[cfg(feature = "blink")]
+    fn track_blink_cell(&mut self, x: u16, y: u16, cell: &ratatui_core::buffer::Cell) {
+        if cell.modifier.contains(style::Modifier::SLOW_BLINK)
+            || cell.modifier.contains(style::Modifier::RAPID_BLINK)
+        {
+            self.blink_cells.insert((x, y), cell.clone());
+        } else {
+            self.blink_cells.remove(&(x, y));
+        }
+    }
+
+    #[cfg(feature = "blink")]
+    fn redraw_blink_cells(&mut self) -> Result<()> {
+        if self.blink_cells.is_empty() {
+            return Ok(());
+        }
+        let cells = core::mem::take(&mut self.blink_cells);
+        for (&(x, y), cell) in &cells {
+            self.draw_cell(x, y, cell)?;
+        }
+        self.blink_cells = cells;
         Ok(())
     }
 }

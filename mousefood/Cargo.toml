@@ -32,7 +32,12 @@ fonts = ["dep:embedded-graphics-unicodefonts"]
 epd-weact = ["dep:weact-studio-epd"]
 epd-waveshare = ["dep:epd-waveshare"]
 framebuffer = []
+blink = []
 underline-color = ["ratatui-core/underline-color"]
 
 [lints]
 workspace = true
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
