@@ -27,7 +27,7 @@ This document lists all breaking changes along with tips to help you migrate smo
 
 ## Unreleased
 
-## [v0.5.0](https://github.com/ratatui/mousefood/tree/mousefood-v0.5.0)
+## [v0.5.0](https://github.com/ratatui/mousefood/releases/mousefood-v0.5.0)
 
 ### `underline-color` feature is now opt-in ([#166])
 
@@ -75,7 +75,7 @@ let config = EmbeddedBackendConfig {
 
 If you use `..Default::default()`, no changes are needed.
 
-## [v0.4.0](https://github.com/ratatui/mousefood/tree/mousefood-v0.4.0)
+## [v0.4.0](https://github.com/ratatui/mousefood/releases/mousefood-v0.4.0)
 
 ### `framebuffer` module is no longer part of the public API ([#149])
 
