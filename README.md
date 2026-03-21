@@ -147,8 +147,8 @@ let config = EmbeddedBackendConfig {
     cursor: CursorConfig {
         style: CursorStyle::Japanese,
         blink: true,
-        color: Rgb888::WHITE, 
-        
+        color: Rgb888::WHITE,
+
     },
     ..Default::default()
 };
@@ -299,6 +299,65 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 See the full embedded example at [`examples/epd-waveshare-demo`](https://github.com/ratatui/mousefood/tree/main/examples/epd-waveshare-demo).
 
+#### Lilygo T5 e-paper
+
+Support for the lilygo T5 e-paper produced by Lilygo with an esp32s3 and the EDO47TC1 panel driver.
+(`lilygo-epd47` driver) can be enabled using `lilygo-epd47` feature.
+
+<details>
+  <summary>Setup example</summary>
+
+The lilygo-epd47 driver include its own internal buffers, so the mousefood framebuffer
+adds memory overhead with no benefit. Disable default features to turn it off:
+
+```toml
+[dependencies]
+mousefood = { version = "*", default-features = false, features = ["lilygo-epd47"] }
+```
+
+```rust,ignore
+use mousefood::prelude::*;
+
+#[main]
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // Setup all that is required for your board and get the peripherals.
+    // let peripherals = ...;
+
+    let mut display = Display::new(
+        pin_config!(peripherals),
+        peripherals.DMA_CH0,
+        peripherals.LCD_CAM,
+        peripherals.RMT,
+    )?;
+
+    let theme = ColorTheme {
+        background: Rgb888::WHITE,
+        foreground: Rgb888::BLACK,
+        ..ColorTheme::ansi()
+    };
+
+    // setup mousefood
+    let backend = EmbeddedBackendConfig {
+        color_theme: theme,
+        font_regular: mousefood::fonts::mono_10x20_atlas(),
+        flush_callback: Box::new(move |display: &mut Display| {
+            display
+                .flush(DrawMode::BlackOnWhite)
+                .expect("to flush to the display")
+        }),
+        ..Default::default()
+    };
+
+    let backend = EmbeddedBackend::new(&mut display, backend);
+    let _terminal = Terminal::new(backend)?;
+    Ok(())
+}
+```
+
+</details>
+
+See the full embedded example at [`examples/lilygo-epd47-demo`](https://github.com/ratatui/mousefood/tree/main/examples/lilygo-epd47-demo).
+
 ## Performance and hardware support
 
 Flash memory on most embedded devices is very limited. Additionally,
@@ -312,6 +371,7 @@ Successfully tested on:
 ### Microcontrollers
 
 - ESP32 (Xtensa)
+- ESP32-S3 (Xtensa)
 - ESP32-C6 (RISC-V)
 - STM32
 - RP2040
@@ -327,6 +387,8 @@ For every driver, the list of displays is not exhaustive.
   (requires enabling `epd-waveshare` feature)
 - [weact-studio-epd](https://crates.io/crates/weact-studio-epd) for e-paper displays
   from WeAct Studio (requires enabling `epd-weact` feature)
+- [lilygo-epd47](https://crates.io/crates/lilygo-epd47) for the Lilygo T5 e-paper
+  from Lilygo (requires enabling `lilygo-epd47` feature)
 
 Send a pull request to add your microcontroller or display driver here!
 

@@ -84,6 +84,11 @@ jobs:
             dir: examples/stm32-nucleo-oled-example
             target: "thumbv7em-none-eabihf"
             setup_xtensa: false
+          # Lilygo-epd47 demo
+          - name: lilygo-epd47-demo
+            dir: examples/lilygo-epd47-demo
+            target: ""
+            setup_xtensa: true
     steps:
       - name: Checkout
         uses: actions/checkout@v6

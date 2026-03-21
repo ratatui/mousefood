@@ -1,4 +1,6 @@
 use crate::macros::for_all_rgb_colors;
+#[cfg(feature = "lilygo-epd47")]
+use embedded_graphics::pixelcolor::Gray4;
 use embedded_graphics::pixelcolor::{
     Bgr555, Bgr565, Bgr666, Bgr888, BinaryColor, Rgb555, Rgb565, Rgb666, Rgb888, RgbColor,
 };
@@ -238,6 +240,14 @@ impl From<TermColor<'_>> for epd_waveshare::color::TriColor {
                 TermColorType::Background => epd_waveshare::color::TriColor::White,
             },
         }
+    }
+}
+
+#[cfg(feature = "lilygo-epd47")]
+impl<'a> From<TermColor<'a>> for Gray4 {
+    fn from(color: TermColor<'a>) -> Self {
+        let rgb: Rgb888 = color.into();
+        rgb.into()
     }
 }
 

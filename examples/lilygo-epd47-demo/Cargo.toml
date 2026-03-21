@@ -1,0 +1,27 @@
+[package]
+name         = "lilygo-epd47-demo"
+version      = "0.1.0"
+edition      = "2024"
+rust-version = "1.90"
+publish      = false
+
+[dependencies]
+esp-bootloader-esp-idf = { version = "0.4.0", features = ["esp32s3"] }
+esp-hal                = { version = "1.0.0", features = ["esp32s3", "unstable", "psram"] }
+
+critical-section = "1.2.0"
+esp-alloc        = "0.9.0"
+lilygo-epd47     = "1.0.0"
+
+ratatui = { workspace = true }
+ratatui-core = { workspace = true }
+mousefood = { path = "../../mousefood/", default-features = false, features = ["fonts", "lilygo-epd47"] }
+embedded-graphics = "0.8.2"
+
+esp-println = { version = "0.16.1", features = ["esp32s3", "log-04"] }
+esp-backtrace = { version = "0.18.1", features = [
+    "esp32s3",
+    "panic-handler",
+    "println",
+] }
+
