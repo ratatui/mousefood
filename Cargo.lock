@@ -1203,7 +1203,7 @@ dependencies = [
  "esp-alloc",
  "esp-bootloader-esp-idf",
  "esp-hal",
- "mousefood 0.4.1",
+ "mousefood 0.5.0",
  "ratatui",
  "ratatui-core",
 ]
@@ -1516,7 +1516,7 @@ dependencies = [
  "libm",
  "log",
  "mipidsi",
- "mousefood 0.4.1",
+ "mousefood 0.5.0",
  "ratatui",
  "time",
  "tui-big-text",
@@ -1529,7 +1529,7 @@ dependencies = [
  "embuild",
  "esp-idf-svc",
  "mipidsi",
- "mousefood 0.4.1",
+ "mousefood 0.5.0",
  "rand",
  "ratatui",
  "time",
@@ -2118,7 +2118,7 @@ dependencies = [
  "esp-hal",
  "esp-println",
  "lilygo-epd47",
- "mousefood 0.4.1",
+ "mousefood 0.5.0",
  "ratatui",
  "ratatui-core",
 ]
@@ -2237,7 +2237,7 @@ dependencies = [
 
 [[package]]
 name = "mousefood"
-version = "0.4.1"
+version = "0.5.0"
 dependencies = [
  "embedded-graphics",
  "embedded-graphics-unicodefonts",
@@ -3050,7 +3050,7 @@ name = "simulator"
 version = "0.0.0"
 dependencies = [
  "embedded-graphics-simulator",
- "mousefood 0.4.1",
+ "mousefood 0.5.0",
  "ratatui",
 ]
 
