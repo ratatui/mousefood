@@ -147,8 +147,8 @@ let config = EmbeddedBackendConfig {
     cursor: CursorConfig {
         style: CursorStyle::Japanese,
         blink: true,
-        color: Rgb888::WHITE, 
-        
+        color: Rgb888::WHITE,
+
     },
     ..Default::default()
 };
@@ -312,7 +312,7 @@ adds memory overhead with no benefit. Disable default features to turn it off:
 
 ```toml
 [dependencies]
-mousefood = { version = "*", default-features = false, features = ["epd-waveshare"] }
+mousefood = { version = "*", default-features = false, features = ["lilygo-epd47"] }
 ```
 
 ```rust,ignore
@@ -322,14 +322,13 @@ use mousefood::prelude::*;
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Setup all that is required for your board and get the peripherals.
     // let peripherals = ...;
-   
+
     let mut display = Display::new(
         pin_config!(peripherals),
         peripherals.DMA_CH0,
         peripherals.LCD_CAM,
         peripherals.RMT,
-    )
-    .expect("to initialize correctly");
+    )?;
 
     let theme = ColorTheme {
         background: Rgb888::WHITE,
@@ -350,7 +349,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     let backend = EmbeddedBackend::new(&mut display, backend);
-    let _terminal = Terminal::new(backend).unwrap();
+    let _terminal = Terminal::new(backend)?;
+    Ok(())
 }
 ```
 

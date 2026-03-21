@@ -19,5 +19,5 @@ Thus, superposing the updated chars which is not ideal.
 
 To solve this you need to:
 
-- update the `flush_callback` to add a screen clear in it
-- add a `terminal.clear()` to force a full redraw from mousefood
+- Update the `flush_callback` to add a screen clear in it.
+- Add a `terminal.clear()` to force a full redraw from mousefood.
