@@ -9,7 +9,7 @@ cortex-m = { version = "0.7.7", features = ["critical-section-single-core", "inl
 cortex-m-rt = "0.7.5"
 dht-sensor = "0.3.0"
 embassy-executor = { version = "0.9.1", features = ["arch-cortex-m", "executor-thread"] }
-embassy-stm32 = { version = "0.5.0", features = ["stm32l433rc", "time-driver-any", "exti", "unstable-pac", "memory-x"] }
+embassy-stm32 = { version = "0.6.0", features = ["stm32l433rc", "time-driver-any", "exti", "unstable-pac", "memory-x"] }
 embassy-time = { version = "0.5.0", features = ["tick-hz-1_000_000"] }
 embedded-alloc = "0.7.0"
 embedded-graphics = "0.8.2"
