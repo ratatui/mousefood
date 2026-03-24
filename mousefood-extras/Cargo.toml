@@ -1,0 +1,20 @@
+[package]
+name = "mousefood-extras"
+# TODO:
+# description = "???"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+homepage.workspace = true
+repository.workspace = true
+
+# TODO: these fields??
+# keywords = ["embedded-graphics", "ratatui", "tui"]
+# categories = ["embedded"]
+# exclude = ["/.github", "/assets"]
+
+[dependencies]
+indoc = "2"
+itertools = { version = "0.14", default-features = false }
+ratatui-core.workspace = true

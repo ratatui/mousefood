@@ -2326,6 +2326,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "mousefood-extras"
+version = "0.1.0"
+dependencies = [
+ "indoc",
+ "itertools 0.14.0",
+ "ratatui-core",
+]
+
+[[package]]
 name = "moxcms"
 version = "0.7.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
