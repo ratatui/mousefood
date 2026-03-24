@@ -77,14 +77,8 @@ async fn main(_spawner: Spawner) {
     // Standard I2C speed
     i2c_config.frequency = Hertz::khz(100);
 
-let i2c = embassy_stm32::i2c::I2c::new(
-        p.I2C1,     
-        p.PB8,      
-        p.PB7,      
-        p.DMA1_CH6, 
-        p.DMA1_CH7, 
-        Irqs,       
-        i2c_config, 
+    let i2c = embassy_stm32::i2c::I2c::new(
+        p.I2C1, p.PB8, p.PB7, p.DMA1_CH6, p.DMA1_CH7, Irqs, i2c_config,
     );
 
     // Initialize SSD1306 display
