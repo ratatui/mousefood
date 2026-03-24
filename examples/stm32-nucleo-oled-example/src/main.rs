@@ -38,6 +38,8 @@ static mut HEAP_MEM: [MaybeUninit<u8>; HEAP_SIZE] = [MaybeUninit::uninit(); HEAP
 bind_interrupts!(struct Irqs {
     I2C1_EV => i2c::EventInterruptHandler<peripherals::I2C1>;
     I2C1_ER => i2c::ErrorInterruptHandler<peripherals::I2C1>;
+    DMA1_CHANNEL6 => embassy_stm32::dma::InterruptHandler<peripherals::DMA1_CH6>;
+    DMA1_CHANNEL7 => embassy_stm32::dma::InterruptHandler<peripherals::DMA1_CH7>;
 });
 
 #[embassy_executor::main]
@@ -75,12 +77,14 @@ async fn main(_spawner: Spawner) {
     // Standard I2C speed
     i2c_config.frequency = Hertz::khz(100);
 
-    let i2c = embassy_stm32::i2c::I2c::new(
-        p.I2C1, // I2C1 pins
-        // PB8 = SCL (D15)
-        // PB7 = SDA (D14)
-        p.PB8, p.PB7, Irqs, // DMA channels used for I2C transfers
-        p.DMA1_CH6, p.DMA1_CH7, i2c_config,
+let i2c = embassy_stm32::i2c::I2c::new(
+        p.I2C1,     
+        p.PB8,      
+        p.PB7,      
+        p.DMA1_CH6, 
+        p.DMA1_CH7, 
+        Irqs,       
+        i2c_config, 
     );
 
     // Initialize SSD1306 display
