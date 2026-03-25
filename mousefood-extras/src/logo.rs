@@ -31,7 +31,7 @@ const TERM_BORDER: char = '▒';
 const TERM_CURSOR: char = '▓';
 
 #[derive(Default)]
-pub struct MouseFoodLogo {}
+pub struct MouseFoodLogo;
 
 impl MouseFoodLogo {
     pub fn new() -> Self {
