@@ -1,6 +1,6 @@
 [package]
 name = "mousefood-extras"
-description = "Widgets for mousefood logo"
+description = "Extras for mousefood"
 version = "0.1.0"
 edition.workspace = true
 rust-version.workspace = true
