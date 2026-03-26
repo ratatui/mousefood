@@ -7,8 +7,7 @@ a **Waveshare 1.54" E-Paper display** over SPI.
 ## Pinmap
 
 Pinout reference is based on the standard Raspberry Pi RP2040-Zero board. More
-details can be found on the
-[official RP2040-Zero Datasheet](https://www.waveshare.com/wiki/RP2040-Zero).
+details can be found on the [official RP2040-Zero Datasheet](https://www.waveshare.com/wiki/RP2040-Zero).
 
 ![RP2040-Zero Pinout](https://www.waveshare.com/w/upload/1/1f/900px-RP2040-Zero-details-7.jpg)
 
@@ -105,9 +104,6 @@ The board will automatically reboot and start running your program.
 
 ## Notes
 
-- **SPI Communication:** The e-paper display communicates over SPI using GPIO 2
-  (SCK) and GPIO 3 (MOSI), with additional control pins for chip select, data/command,
-  reset, and busy status.
 - **Color Translation:** Uses a custom adapter to automatically convert
   Ratatui's standard colors into the black-and-white pixels the e-paper screen
   understands.

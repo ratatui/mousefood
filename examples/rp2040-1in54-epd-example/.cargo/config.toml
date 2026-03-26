@@ -1,14 +1,12 @@
 [build]
 target = "thumbv6m-none-eabi"
 
-[target.'cfg(all(target_arch = "arm", target_os = "none"))']
-runner = "elf2uf2-rs deploy --family rp2040"
-linker = "flip-link"
+[target.thumbv6m-none-eabi]
 rustflags = [
-  "-C", "link-arg=--nmagic",
-  "-C", "link-arg=-Tlink.x",
-  "-C", "no-vectorize-loops",
+    "-C", "link-arg=-Tlink.x",
+    "-C", "link-arg=--nmagic",
 ]
 
-[env]
-DEFMT_LOG = "debug"
+[unstable]
+build-std = ["core", "alloc"]
+build-std-features = ["panic_immediate_abort"]

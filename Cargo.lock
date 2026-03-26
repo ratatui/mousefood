@@ -3198,7 +3198,6 @@ dependencies = [
  "embedded-hal-bus",
  "epd-waveshare",
  "fugit",
- "kasuari",
  "mousefood 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "panic-halt",
  "portable-atomic",
