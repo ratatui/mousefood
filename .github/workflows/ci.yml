@@ -105,7 +105,7 @@ jobs:
         if: ${{ matrix.project.setup_xtensa == false }}
         uses: dtolnay/rust-toolchain@stable
         with:
-          components: clippy
+          components: clippy, rust-src
       - name: Setup Xtensa toolchain (ESP-IDF)
         if: ${{ matrix.project.setup_xtensa == true }}
         uses: esp-rs/xtensa-toolchain@v1.6.0
@@ -155,10 +155,9 @@ jobs:
           - thumbv7em-none-eabihf
           - thumbv7m-none-eabi
           # thumbv6m-none-eabi is excluded here: kasuari (pulled in by ratatui)
-          # uses alloc::sync::Arc + AtomicUsize::fetch_add which require
-          # build-std on this target. Validated instead by build-thumbv6m below.
-          # - riscv32imc-unknown-none-elf # esp32c2, esp32c3
-          # - riscv32imac-unknown-none-elf # esp32c6, esp32h2
+          # uses alloc::sync::Arc which requires target_has_atomic = "ptr",
+          # which thumbv6m does not have. alloc::sync does not exist on this
+          # target regardless of build-std. Validated instead by build-rp2040.
         toolchain: ["1.86.0", "stable"]
     runs-on: ubuntu-latest
     steps:
@@ -170,21 +169,26 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - run: cargo build --release --target ${{ matrix.target }}
 
-  # thumbv6m requires build-std because kasuari (via ratatui) uses
-  # alloc::sync::Arc and AtomicUsize::fetch_add, which are only available
-  # on this target when building std from source.
-  # Validated separately using nightly + -Zbuild-std.
-  build-thumbv6m:
-    name: build [no-std] thumbv6m-none-eabi (build-std)
+  # thumbv6m-none-eabi is validated by building the rp2040 example from its
+  # own directory. Its .cargo/config.toml already provides:
+  #   build-std = ["core", "alloc"]
+  #   build-std-features = ["panic_immediate_abort"]
+  # and the example uses portable-atomic + rp2040-hal's critical-section-impl
+  # to provide software atomics, which is what makes kasuari compile correctly
+  # on this target. This is the only supported approach for thumbv6m.
+  build-rp2040:
+    name: build [no-std] thumbv6m-none-eabi (rp2040 example)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: dtolnay/rust-toolchain@nightly
+      - uses: dtolnay/rust-toolchain@stable
         with:
           target: thumbv6m-none-eabi
           components: rust-src
       - uses: Swatinem/rust-cache@v2
-      - run: cargo build --release --target thumbv6m-none-eabi -Zbuild-std=core,alloc
+      - name: Build rp2040 example
+        working-directory: examples/rp2040-1in54-epd-example
+        run: cargo build --release
 
   build-espidf-std:
     name: build [std] ${{ matrix.target }}
