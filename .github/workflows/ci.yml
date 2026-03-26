@@ -89,6 +89,15 @@ jobs:
             dir: examples/lilygo-epd47-demo
             target: ""
             setup_xtensa: true
+          # RP2040-Zero EPD demo
+          # Run from its own dir so .cargo/config.toml supplies
+          # build-std = ["core", "alloc"], required for thumbv6m-none-eabi.
+          # kasuari (via ratatui) uses alloc::sync + fetch_add which are
+          # unavailable on thumbv6m without build-std.
+          - name: rp2040-1in54-epd-example
+            dir: examples/rp2040-1in54-epd-example
+            target: "thumbv6m-none-eabi"
+            setup_xtensa: false
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -96,7 +105,7 @@ jobs:
         if: ${{ matrix.project.setup_xtensa == false }}
         uses: dtolnay/rust-toolchain@stable
         with:
-          components: clippy
+          components: clippy, rust-src
       - name: Setup Xtensa toolchain (ESP-IDF)
         if: ${{ matrix.project.setup_xtensa == true }}
         uses: esp-rs/xtensa-toolchain@v1.6.0
@@ -145,10 +154,10 @@ jobs:
           - thumbv7em-none-eabi
           - thumbv7em-none-eabihf
           - thumbv7m-none-eabi
-          # no alloc::sync, required by kasuari
-          # - thumbv6m-none-eabi
-          # - riscv32imc-unknown-none-elf # esp32c2, esp32c3
-          # - riscv32imac-unknown-none-elf # esp32c6, esp32h2
+          # thumbv6m-none-eabi is excluded here: kasuari (pulled in by ratatui)
+          # uses alloc::sync::Arc which requires target_has_atomic = "ptr",
+          # which thumbv6m does not have. alloc::sync does not exist on this
+          # target regardless of build-std. Validated instead by build-rp2040.
         toolchain: ["1.86.0", "stable"]
     runs-on: ubuntu-latest
     steps:
@@ -159,6 +168,27 @@ jobs:
           target: ${{ matrix.target }}
       - uses: Swatinem/rust-cache@v2
       - run: cargo build --release --target ${{ matrix.target }}
+
+  # thumbv6m-none-eabi is validated by building the rp2040 example from its
+  # own directory. Its .cargo/config.toml already provides:
+  #   build-std = ["core", "alloc"]
+  #   build-std-features = ["panic_immediate_abort"]
+  # and the example uses portable-atomic + rp2040-hal's critical-section-impl
+  # to provide software atomics, which is what makes kasuari compile correctly
+  # on this target. This is the only supported approach for thumbv6m.
+  build-rp2040:
+    name: build [no-std] thumbv6m-none-eabi (rp2040 example)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          target: thumbv6m-none-eabi
+          components: rust-src
+      - uses: Swatinem/rust-cache@v2
+      - name: Build rp2040 example
+        working-directory: examples/rp2040-1in54-epd-example
+        run: cargo build --release
 
   build-espidf-std:
     name: build [std] ${{ matrix.target }}

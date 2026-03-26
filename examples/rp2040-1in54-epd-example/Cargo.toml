@@ -1,0 +1,43 @@
+[package]
+name = "rp2040-1in54-epd-example"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+cortex-m = "0.7.7"
+cortex-m-rt = "0.7.5"
+embedded-alloc = "0.7.0"
+embedded-graphics = "0.8.2"
+embedded-hal = "1.0.0"
+embedded-hal-bus = "0.3.0"
+epd-waveshare = { version = "0.6.0", features = ["graphics"] }
+fugit = "0.3.9"
+mousefood = { version = "0.5.0", default-features = false, features = ["fonts"] }
+panic-halt = "1.0.0"
+portable-atomic = { workspace = true }
+ratatui = { workspace = true }
+rp2040-boot2 = "0.3.0"
+rp2040-hal = { version = "0.12.0", features = ["critical-section-impl"] }
+
+[[bin]]
+name = "rp2040-1in54-epd-example"
+test = false
+bench = false
+doctest = false
+
+[profile.dev]
+codegen-units = 1 
+debug = 2 
+debug-assertions = true
+incremental = false 
+opt-level = 3
+overflow-checks = true
+
+[profile.release]
+codegen-units = 1 
+debug = 2 
+debug-assertions = false
+incremental = false 
+lto = 'fat'
+opt-level = 3
+overflow-checks = false
