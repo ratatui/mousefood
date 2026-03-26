@@ -89,6 +89,11 @@ jobs:
             dir: examples/lilygo-epd47-demo
             target: ""
             setup_xtensa: true
+          # RP2040-Zero EPD demo
+          - name: rp2040-1in54-epd-example 
+            dir: examples/rp2040-1in54-epd-example
+            target: "thumbv6m-none-eabi"
+            setup_xtensa: false
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -146,7 +151,7 @@ jobs:
           - thumbv7em-none-eabihf
           - thumbv7m-none-eabi
           # no alloc::sync, required by kasuari
-          # - thumbv6m-none-eabi
+          - thumbv6m-none-eabi
           # - riscv32imc-unknown-none-elf # esp32c2, esp32c3
           # - riscv32imac-unknown-none-elf # esp32c6, esp32h2
         toolchain: ["1.86.0", "stable"]

@@ -1,0 +1,14 @@
+[build]
+target = "thumbv6m-none-eabi"
+
+[target.'cfg(all(target_arch = "arm", target_os = "none"))']
+runner = "elf2uf2-rs deploy --family rp2040"
+linker = "flip-link"
+rustflags = [
+  "-C", "link-arg=--nmagic",
+  "-C", "link-arg=-Tlink.x",
+  "-C", "no-vectorize-loops",
+]
+
+[env]
+DEFMT_LOG = "debug"
