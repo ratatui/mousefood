@@ -63,53 +63,40 @@ jobs:
           - name: workspace
             dir: .
             target: ""
-            args: ""
             setup_xtensa: false
           # ESP-IDF demo using Xtensa toolchain
           - name: esp32-std-demo
             dir: examples/esp32-std-demo
             target: xtensa-esp32-espidf
-            args: ""
             setup_xtensa: true
           # no-std demo
           - name: esp32-no-std-demo
             dir: examples/esp32-no-std-demo
             target: ""
-            args: ""
             setup_xtensa: true
           # EPD Waveshare demo
           - name: epd-waveshare-demo
             dir: examples/epd-waveshare-demo
             target: ""
-            args: ""
             setup_xtensa: true
           # STM32-Nucleo OLED Demo
           - name: stm32-nucleo-oled-example
             dir: examples/stm32-nucleo-oled-example
             target: "thumbv7em-none-eabihf"
-            args: ""
             setup_xtensa: false
           # Lilygo-epd47 demo
           - name: lilygo-epd47-demo
             dir: examples/lilygo-epd47-demo
             target: ""
-            args: ""
             setup_xtensa: true
           # RP2040-Zero EPD demo
-          # Must be run from its own dir so .cargo/config.toml provides
-          # build-std = ["core", "alloc"], which is required for thumbv6m-none-eabi
-          # (no alloc::sync / atomics without it — kasuari breaks otherwise)
+          # Run from its own dir so .cargo/config.toml supplies
+          # build-std = ["core", "alloc"], required for thumbv6m-none-eabi.
+          # kasuari (via ratatui) uses alloc::sync + fetch_add which are
+          # unavailable on thumbv6m without build-std.
           - name: rp2040-1in54-epd-example
             dir: examples/rp2040-1in54-epd-example
-            target: "thumbv6m-none-eabi"  
-            args: ""
-            setup_xtensa: false
-          # mousefood lib on thumbv6m — scoped to -p mousefood to avoid
-          # pulling in example deps that require build-std
-          - name: mousefood-thumbv6m
-            dir: .
             target: "thumbv6m-none-eabi"
-            args: "-p mousefood"
             setup_xtensa: false
     steps:
       - name: Checkout
@@ -135,9 +122,9 @@ jobs:
         working-directory: ${{ matrix.project.dir }}
         run: |
           if [ -n "${{ matrix.project.target }}" ]; then
-            cargo clippy ${{ matrix.project.args }} --target "${{ matrix.project.target }}" -- -D warnings
+            cargo clippy --target "${{ matrix.project.target }}" -- -D warnings
           else
-            cargo clippy ${{ matrix.project.args }} -- -D warnings
+            cargo clippy -- -D warnings
           fi
 
   test:
@@ -167,9 +154,9 @@ jobs:
           - thumbv7em-none-eabi
           - thumbv7em-none-eabihf
           - thumbv7m-none-eabi
-          # thumbv6m has no alloc::sync / atomics; scope to -p mousefood
-          # (kasuari, pulled in by ratatui, breaks without build-std on this target)
-          - thumbv6m-none-eabi
+          # thumbv6m-none-eabi is excluded here: kasuari (pulled in by ratatui)
+          # uses alloc::sync::Arc + AtomicUsize::fetch_add which require
+          # build-std on this target. Validated instead by build-thumbv6m below.
           # - riscv32imc-unknown-none-elf # esp32c2, esp32c3
           # - riscv32imac-unknown-none-elf # esp32c6, esp32h2
         toolchain: ["1.86.0", "stable"]
@@ -181,12 +168,23 @@ jobs:
           toolchain: ${{ matrix.toolchain }}
           target: ${{ matrix.target }}
       - uses: Swatinem/rust-cache@v2
-      - name: Build (thumbv6m — mousefood only, kasuari incompatible without build-std)
-        if: ${{ matrix.target == 'thumbv6m-none-eabi' }}
-        run: cargo build --release -p mousefood --target ${{ matrix.target }}
-      - name: Build (all other targets)
-        if: ${{ matrix.target != 'thumbv6m-none-eabi' }}
-        run: cargo build --release --target ${{ matrix.target }}
+      - run: cargo build --release --target ${{ matrix.target }}
+
+  # thumbv6m requires build-std because kasuari (via ratatui) uses
+  # alloc::sync::Arc and AtomicUsize::fetch_add, which are only available
+  # on this target when building std from source.
+  # Validated separately using nightly + -Zbuild-std.
+  build-thumbv6m:
+    name: build [no-std] thumbv6m-none-eabi (build-std)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          target: thumbv6m-none-eabi
+          components: rust-src
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo build --release --target thumbv6m-none-eabi -Zbuild-std=core,alloc
 
   build-espidf-std:
     name: build [std] ${{ matrix.target }}
