@@ -47,8 +47,6 @@ jobs:
           components: rustfmt
       - name: Check formatting
         run: cargo fmt --check --all
-      - name: Cache Cargo dependencies
-        uses: Swatinem/rust-cache@v2
 
   clippy:
     name: Run clippy (${{ matrix.project.name }})
@@ -125,12 +123,12 @@ jobs:
       - uses: actions/checkout@v6
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
+      - name: Cache Cargo dependencies
+        uses: Swatinem/rust-cache@v2
       - name: Run lib tests
         run: cargo test --locked --lib --all-features
       - name: Run doctests
         run: cargo test --locked -p mousefood --doc
-      - name: Cache Cargo dependencies
-        uses: Swatinem/rust-cache@v2
 
   build-no-std:
     name: build [no-std] ${{ matrix.target }} ${{ matrix.toolchain }}
