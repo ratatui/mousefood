@@ -111,7 +111,7 @@ mod tests {
 
     #[test]
     fn test_render_mousefood_logo() {
-        let mut terminal = Terminal::new(TestBackend::new(80, 20)).unwrap();
+        let mut terminal = Terminal::new(TestBackend::new(40, 6)).unwrap();
         terminal
             .draw(|frame| {
                 frame.render_widget(MouseFoodLogo, frame.area());
