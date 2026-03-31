@@ -47,8 +47,6 @@ jobs:
           components: rustfmt
       - name: Check formatting
         run: cargo fmt --check --all
-      - name: Cache Cargo dependencies
-        uses: Swatinem/rust-cache@v2
 
   clippy:
     name: Run clippy (${{ matrix.project.name }})
