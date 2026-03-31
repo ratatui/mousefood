@@ -102,3 +102,21 @@ impl Widget for MouseFoodLogo {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use insta::assert_snapshot;
+    use ratatui_core::{backend::TestBackend, terminal::Terminal};
+
+    #[test]
+    fn test_render_mousefood_logo() {
+        let mut terminal = Terminal::new(TestBackend::new(80, 20)).unwrap();
+        terminal
+            .draw(|frame| {
+                frame.render_widget(MouseFoodLogo, frame.area());
+            })
+            .unwrap();
+        assert_snapshot!(terminal.backend());
+    }
+}
