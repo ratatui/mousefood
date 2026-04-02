@@ -29,7 +29,7 @@ time = "0.3.45"
 rand = "0.10.0"
 mipidsi = "0.10.0"
 mousefood = { path = "../../mousefood/" }
-tui-big-text = "0.8.1"
+tui-big-text = "0.8.3"
 ratatui = { workspace = true, features = ["std", "widget-calendar"] }
 
 [build-dependencies]
