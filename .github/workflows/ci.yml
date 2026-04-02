@@ -152,10 +152,10 @@ jobs:
           - thumbv7em-none-eabi
           - thumbv7em-none-eabihf
           - thumbv7m-none-eabi
-          # thumbv6m-none-eabi is excluded here: kasuari (pulled in by ratatui)
-          # uses alloc::sync::Arc which requires target_has_atomic = "ptr",
-          # which thumbv6m does not have. alloc::sync does not exist on this
-          # target regardless of build-std. Validated instead by build-rp2040.
+          # no alloc::sync, required by kasuari
+          # - thumbv6m-none-eabi
+          # - riscv32imc-unknown-none-elf # esp32c2, esp32c3
+          # - riscv32imac-unknown-none-elf # esp32c6, esp32h2
         toolchain: ["1.86.0", "stable"]
     runs-on: ubuntu-latest
     steps:

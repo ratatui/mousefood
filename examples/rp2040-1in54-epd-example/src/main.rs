@@ -33,14 +33,11 @@ static HEAP: Heap = Heap::empty();
 extern crate alloc;
 use alloc::boxed::Box;
 
-// --- THE IGNITION KEY ---
-// This places the 256-byte bootloader at the very start of the flash memory.
-// Without this, the RP2040 ROM refuses to jump to our code.
 #[unsafe(link_section = ".boot2")]
 #[used]
-pub static BOOT2: [u8; 256] = rp2040_boot2::BOOT_LOADER_W25Q080;
-// ------------------------
+pub static BOOT2: [u8; 256] = rp2040_boot2::BOOT_LOADER_GENERIC_03H;
 
+/// Newtype adapter converting `Rgb888` (ratatui) to `BinaryColor` (e-paper driver)
 pub struct DisplayAdapter(pub Display1in54);
 
 impl Dimensions for DisplayAdapter {
@@ -120,12 +117,6 @@ fn main() -> ! {
 
     let mut epd = Epd1in54::new(&mut spi_bus, busy, dc, rst, &mut timer, None).unwrap();
 
-    // Uncomment the below lines when you wanna clear the display
-
-    //epd.clear_frame(&mut spi_bus, &mut timer).unwrap();
-    //epd.display_frame(&mut spi_bus, &mut timer).unwrap();
-    //epd.sleep(&mut spi_bus, &mut timer).unwrap();
-
     let mut display = Display1in54::default();
     display.set_rotation(epd_waveshare::prelude::DisplayRotation::Rotate270);
 
@@ -142,7 +133,6 @@ fn main() -> ! {
     let backend = EmbeddedBackend::new(&mut adapter, backend_config);
     let mut terminal = Terminal::new(backend).unwrap();
 
-    // Comment this line when clearng the display (Uncommenting the above commennted lines)
     terminal.draw(draw).unwrap();
 
     loop {

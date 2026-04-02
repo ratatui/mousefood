@@ -39,7 +39,6 @@ epd-waveshare = "0.6.0"
 ratatui = { version = "0.30.0", default-features = false , features = ["portable-atomic"]}
 rstest = "0.26.1"
 paste = "1.0.15"
-portable-atomic = { version = "1.13.1", features = ["critical-section"] }
 
 [workspace.lints.rust]
 missing_docs = "warn"

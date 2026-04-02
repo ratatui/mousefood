@@ -2,6 +2,7 @@
 name = "rp2040-1in54-epd-example"
 version = "0.1.0"
 edition = "2024"
+publish = false
 
 [dependencies]
 cortex-m = "0.7.7"
@@ -14,7 +15,7 @@ epd-waveshare = { version = "0.6.0", features = ["graphics"] }
 fugit = "0.3.9"
 mousefood = { version = "0.5.0", default-features = false, features = ["fonts"] }
 panic-halt = "1.0.0"
-portable-atomic = { workspace = true }
+portable-atomic = { version = "1.13.1", features = ["critical-section"] }
 ratatui = { workspace = true }
 rp2040-boot2 = "0.3.0"
 rp2040-hal = { version = "0.12.0", features = ["critical-section-impl"] }
@@ -25,19 +26,19 @@ test = false
 bench = false
 doctest = false
 
-[profile.dev]
-codegen-units = 1 
-debug = 2 
-debug-assertions = true
-incremental = false 
-opt-level = 3
-overflow-checks = true
+#[profile.dev]
+#codegen-units = 1 
+#debug = 2 
+#debug-assertions = true
+#incremental = false 
+#opt-level = 3
+#overflow-checks = true
 
-[profile.release]
-codegen-units = 1 
-debug = 2 
-debug-assertions = false
-incremental = false 
-lto = 'fat'
-opt-level = 3
-overflow-checks = false
+#[profile.release]
+#codegen-units = 1 
+#debug = 2 
+#debug-assertions = false
+#incremental = false 
+#lto = 'fat'
+#opt-level = 3
+#overflow-checks = false
