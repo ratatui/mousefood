@@ -1,8 +1,7 @@
 # RP2040 Ratatui E-Paper Demo
 
 This project demonstrates running a terminal UI application using `ratatui` and
-`mousefood` on an **RP2040-Zero microcontroller** (by Waveshare), rendered onto
-a **Waveshare 1.54" E-Paper display** over SPI.
+`mousefood` on an [RP2040-Zero microcontroller](www.waveshare.com/wiki/RP2040-Zero) (by Waveshare), rendered onto a [Waveshare 1.54" E-Paper display](https://www.waveshare.com/wiki/1.54inch_e-Paper_Module_Manual) over SPI.
 
 ## Pinmap
 
