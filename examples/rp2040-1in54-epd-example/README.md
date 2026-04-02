@@ -1,7 +1,8 @@
 # RP2040 Ratatui E-Paper Demo
 
 This project demonstrates running a terminal UI application using `ratatui` and
-`mousefood` on an [RP2040-Zero microcontroller](www.waveshare.com/wiki/RP2040-Zero) (by Waveshare), rendered onto a [Waveshare 1.54" E-Paper display](https://www.waveshare.com/wiki/1.54inch_e-Paper_Module_Manual) over SPI.
+`mousefood` on an [RP2040-Zero microcontroller][rp2040-zero] (by Waveshare)
+, rendered onto a [Waveshare 1.54" E-Paper display][epd] over SPI.
 
 ## Pinmap
 
@@ -67,7 +68,9 @@ Convert the ELF binary to UF2 format, which the RP2040 bootloader understands:
 
 ```bash
 # The RP2040 bootloader only accepts UF2 files for flashing
-elf2uf2-rs convert ../../target/thumbv6m-none-eabi/release/rp2040-1in54-epd-example flash.uf2
+elf2uf2-rs convert \
+  ../../target/thumbv6m-none-eabi/release/rp2040-1in54-epd-example \
+  flash.uf2
 ```
 
 ### 5. Flash the Firmware
@@ -113,3 +116,6 @@ The board will automatically reboot and start running your program.
   to provide sufficient space for Ratatui to build and render its UI widgets.
 - **Power Efficiency:** The CPU and screen are put to sleep between frame updates
   to conserve power and prevent the e-ink display from ghosting.
+
+[rp2040-zero]: https://www.waveshare.com/wiki/RP2040-Zero
+[epd]: https://www.waveshare.com/wiki/1.54inch_e-Paper_Module_Manual
