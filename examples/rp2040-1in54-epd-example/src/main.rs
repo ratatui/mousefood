@@ -3,6 +3,7 @@
 
 use cortex_m_rt::entry;
 use embedded_alloc::LlffHeap as Heap;
+use core::mem::MaybeUninit;
 use epd_waveshare::{
     epd1in54_v2::{Display1in54, Epd1in54},
     prelude::WaveshareDisplay,
@@ -30,6 +31,9 @@ use ratatui::{Frame, Terminal};
 
 #[global_allocator]
 static HEAP: Heap = Heap::empty();
+const HEAP_SIZE: usize = 100000;
+static mut HEAP_MEM: [MaybeUninit<u8>; HEAP_SIZE] = [MaybeUninit::uninit(); HEAP_SIZE];
+
 extern crate alloc;
 use alloc::boxed::Box;
 
@@ -37,7 +41,7 @@ use alloc::boxed::Box;
 #[used]
 pub static BOOT2: [u8; 256] = rp2040_boot2::BOOT_LOADER_GENERIC_03H;
 
-/// Newtype adapter converting `Rgb888` (ratatui) to `BinaryColor` (e-paper driver)
+/// Adapter converting `Rgb888` (ratatui) to `BinaryColor` (e-paper driver)
 pub struct DisplayAdapter(pub Display1in54);
 
 impl Dimensions for DisplayAdapter {
@@ -61,14 +65,9 @@ impl DrawTarget for DisplayAdapter {
 
 #[entry]
 fn main() -> ! {
-    {
-        use core::mem::MaybeUninit;
-        const HEAP_SIZE: usize = 100000;
-        static mut HEAP_MEM: [MaybeUninit<u8>; HEAP_SIZE] = [MaybeUninit::uninit(); HEAP_SIZE];
-        unsafe {
-            let heap_ptr = core::ptr::addr_of_mut!(HEAP_MEM) as usize;
-            HEAP.init(heap_ptr, HEAP_SIZE);
-        }
+    unsafe {
+        let heap_ptr = core::ptr::addr_of_mut!(HEAP_MEM) as usize;
+        HEAP.init(heap_ptr, HEAP_SIZE);
     }
 
     let mut pac = pac::Peripherals::take().unwrap();
@@ -85,8 +84,8 @@ fn main() -> ! {
         &mut pac.RESETS,
         &mut wdt,
     )
-    .ok()
-    .unwrap();
+        .ok()
+        .unwrap();
 
     let mut timer = Timer::new(pac.TIMER, &mut pac.RESETS, &clocks);
 
@@ -126,8 +125,8 @@ fn main() -> ! {
         flush_callback: Box::new(move |adapter: &mut DisplayAdapter| {
             epd.update_and_display_frame(&mut spi_bus, adapter.0.buffer(), &mut timer)
                 .unwrap();
-        }),
-        ..Default::default()
+            }),
+            ..Default::default()
     };
 
     let backend = EmbeddedBackend::new(&mut adapter, backend_config);

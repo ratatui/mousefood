@@ -109,9 +109,10 @@ The board will automatically reboot and start running your program.
 - **Color Translation:** Uses a custom adapter to automatically convert
   Ratatui's standard colors into the black-and-white pixels the e-paper screen
   understands.
-- **Hardware Quirks:** The RP2040 is missing a few specific atomic instructions
-  that Ratatui expects. The `portable-atomic` crate is used to emulate them in
-  software so the layout engine works correctly.
+- *Hardware Quirks & Build Requirements (`thumbv6m`)*: The RP2040-Zero lacks hardware
+  atomics required by `ratatui`, so `portable-atomic` emulates them in software;
+  additionally, the project must be built from its own directory to properly apply
+  the `build-std` and `build-std-features` flags defined in its local `.cargo/config.toml`.
 - **Memory Allocation:** A **100 KB heap** is carved out of the RP2040's RAM
   to provide sufficient space for Ratatui to build and render its UI widgets.
 - **Power Efficiency:** The CPU and screen are put to sleep between frame updates

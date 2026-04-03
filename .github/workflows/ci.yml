@@ -88,10 +88,6 @@ jobs:
             target: ""
             setup_xtensa: true
           # RP2040-Zero EPD demo
-          # Run from its own dir so .cargo/config.toml supplies
-          # build-std = ["core", "alloc"], required for thumbv6m-none-eabi.
-          # kasuari (via ratatui) uses alloc::sync + fetch_add which are
-          # unavailable on thumbv6m without build-std.
           - name: rp2040-1in54-epd-example
             dir: examples/rp2040-1in54-epd-example
             target: "thumbv6m-none-eabi"
@@ -152,10 +148,6 @@ jobs:
           - thumbv7em-none-eabi
           - thumbv7em-none-eabihf
           - thumbv7m-none-eabi
-          # no alloc::sync, required by kasuari
-          # - thumbv6m-none-eabi
-          # - riscv32imc-unknown-none-elf # esp32c2, esp32c3
-          # - riscv32imac-unknown-none-elf # esp32c6, esp32h2
         toolchain: ["1.86.0", "stable"]
     runs-on: ubuntu-latest
     steps:
@@ -167,25 +159,25 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - run: cargo build --release --target ${{ matrix.target }}
 
-  # thumbv6m-none-eabi is validated by building the rp2040 example from its
-  # own directory. Its .cargo/config.toml already provides:
-  #   build-std = ["core", "alloc"]
-  #   build-std-features = ["panic_immediate_abort"]
-  # and the example uses portable-atomic + rp2040-hal's critical-section-impl
-  # to provide software atomics, which is what makes kasuari compile correctly
-  # on this target. This is the only supported approach for thumbv6m.
-  build-rp2040:
-    name: build [no-std] thumbv6m-none-eabi (rp2040 example)
+  build-std:
+    name: build [build-std] ${{ matrix.example.target }} (${{ matrix.example.name }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        example:
+          - name: rp2040-example
+            dir: examples/rp2040-1in54-epd-example
+            target: thumbv6m-none-eabi
     steps:
       - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@stable
         with:
-          target: thumbv6m-none-eabi
+          target: ${{ matrix.example.target }}
           components: rust-src
       - uses: Swatinem/rust-cache@v2
-      - name: Build rp2040 example
-        working-directory: examples/rp2040-1in54-epd-example
+      - name: Build ${{ matrix.example.name }}
+        working-directory: ${{ matrix.example.dir }}
         run: cargo build --release
 
   build-espidf-std:
