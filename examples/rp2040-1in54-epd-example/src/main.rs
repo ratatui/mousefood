@@ -1,9 +1,9 @@
 #![no_std]
 #![no_main]
 
+use core::mem::MaybeUninit;
 use cortex_m_rt::entry;
 use embedded_alloc::LlffHeap as Heap;
-use core::mem::MaybeUninit;
 use epd_waveshare::{
     epd1in54_v2::{Display1in54, Epd1in54},
     prelude::WaveshareDisplay,
@@ -84,8 +84,8 @@ fn main() -> ! {
         &mut pac.RESETS,
         &mut wdt,
     )
-        .ok()
-        .unwrap();
+    .ok()
+    .unwrap();
 
     let mut timer = Timer::new(pac.TIMER, &mut pac.RESETS, &clocks);
 
@@ -125,8 +125,8 @@ fn main() -> ! {
         flush_callback: Box::new(move |adapter: &mut DisplayAdapter| {
             epd.update_and_display_frame(&mut spi_bus, adapter.0.buffer(), &mut timer)
                 .unwrap();
-            }),
-            ..Default::default()
+        }),
+        ..Default::default()
     };
 
     let backend = EmbeddedBackend::new(&mut adapter, backend_config);
