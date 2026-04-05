@@ -87,6 +87,11 @@ jobs:
             dir: examples/lilygo-epd47-demo
             target: ""
             setup_xtensa: true
+          # RP2040-Zero EPD demo
+          - name: rp2040-1in54-epd-example
+            dir: examples/rp2040-1in54-epd-example
+            target: "thumbv6m-none-eabi"
+            setup_xtensa: false
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -94,7 +99,7 @@ jobs:
         if: ${{ matrix.project.setup_xtensa == false }}
         uses: dtolnay/rust-toolchain@stable
         with:
-          components: clippy
+          components: clippy, rust-src
       - name: Setup Xtensa toolchain (ESP-IDF)
         if: ${{ matrix.project.setup_xtensa == true }}
         uses: esp-rs/xtensa-toolchain@v1.6.0
@@ -143,10 +148,6 @@ jobs:
           - thumbv7em-none-eabi
           - thumbv7em-none-eabihf
           - thumbv7m-none-eabi
-          # no alloc::sync, required by kasuari
-          # - thumbv6m-none-eabi
-          # - riscv32imc-unknown-none-elf # esp32c2, esp32c3
-          # - riscv32imac-unknown-none-elf # esp32c6, esp32h2
         toolchain: ["1.86.0", "stable"]
     runs-on: ubuntu-latest
     steps:
@@ -157,6 +158,27 @@ jobs:
           target: ${{ matrix.target }}
       - uses: Swatinem/rust-cache@v2
       - run: cargo build --release --target ${{ matrix.target }}
+
+  build-std:
+    name: build [build-std] ${{ matrix.example.target }} (${{ matrix.example.name }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        example:
+          - name: rp2040-example
+            dir: examples/rp2040-1in54-epd-example
+            target: thumbv6m-none-eabi
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          target: ${{ matrix.example.target }}
+          components: rust-src
+      - uses: Swatinem/rust-cache@v2
+      - name: Build ${{ matrix.example.name }}
+        working-directory: ${{ matrix.example.dir }}
+        run: cargo build --release
 
   build-espidf-std:
     name: build [std] ${{ matrix.target }}
