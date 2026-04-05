@@ -84,7 +84,8 @@ Mount the RP2040 drive:
 sudo mount -t vfat -o sync /dev/sda1 /mnt/rp2
 ```
 
-> **Note:** The device path may vary depending on your system. If you have
+> [!IMPORTANT]
+> The device path may vary depending on your system. If you have
 > multiple USB drives connected, use `lsblk` to identify the correct device
 > (it may be `/dev/sdb1`, `/dev/sdc1`, etc.).
 
