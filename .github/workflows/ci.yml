@@ -163,27 +163,6 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - run: cargo build --release --target ${{ matrix.target }}
 
-  build-std:
-    name: build [build-std] ${{ matrix.example.target }} (${{ matrix.example.name }})
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        example:
-          - name: rp2040-example
-            dir: examples/rp2040-1in54-epd-example
-            target: thumbv6m-none-eabi
-    steps:
-      - uses: actions/checkout@v6
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          target: ${{ matrix.example.target }}
-          components: rust-src
-      - uses: Swatinem/rust-cache@v2
-      - name: Build ${{ matrix.example.name }}
-        working-directory: ${{ matrix.example.dir }}
-        run: cargo build --release
-
   build-espidf-std:
     name: build [std] ${{ matrix.target }}
     strategy:
