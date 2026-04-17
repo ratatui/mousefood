@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["mousefood", "examples/*"]
+members = ["mousefood", "mousefood-extras", "examples/*"]
 default-members = ["mousefood"]
 
 [workspace.package]

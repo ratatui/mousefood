@@ -131,7 +131,7 @@ jobs:
       - name: Cache Cargo dependencies
         uses: Swatinem/rust-cache@v2
       - name: Run lib tests
-        run: cargo test --locked --lib --all-features
+        run: cargo test --workspace --locked --lib --all-features
       - name: Run doctests
         run: cargo test --locked -p mousefood --doc
 
