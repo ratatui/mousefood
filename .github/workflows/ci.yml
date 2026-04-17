@@ -148,6 +148,10 @@ jobs:
           - thumbv7em-none-eabi
           - thumbv7em-none-eabihf
           - thumbv7m-none-eabi
+          # no alloc::sync, required by kasuari
+          # - thumbv6m-none-eabi
+          # - riscv32imc-unknown-none-elf # esp32c2, esp32c3
+          # - riscv32imac-unknown-none-elf # esp32c6, esp32h2
         toolchain: ["1.86.0", "stable"]
     runs-on: ubuntu-latest
     steps:
