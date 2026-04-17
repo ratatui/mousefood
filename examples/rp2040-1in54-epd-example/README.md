@@ -13,16 +13,16 @@ details can be found on the [official RP2040-Zero Datasheet](https://www.wavesha
 
 ### Essential Pins
 
-| Component      | RP2040 GPIO | Description                  |
-| :------------- | :---------- | :--------------------------- |
-| **EPD MOSI**   | GPIO 3      | SPI Data Input (DIN)         |
-| **EPD SCK**    | GPIO 2      | SPI Clock (CLK)              |
-| **EPD CS**     | GPIO 5      | Chip Select (Active Low)     |
-| **EPD DC**     | GPIO 6      | Data / Command Control       |
-| **EPD RST**    | GPIO 10     | Reset                        |
-| **EPD BUSY**   | GPIO 11     | Busy Status Output           |
-| **VCC**        | 3.3V OUT    | 3.3V Power Supply            |
-| **GND**        | GND         | Ground                       |
+| Component    | RP2040 GPIO | Description              |
+| :----------- | :---------- | :----------------------- |
+| **EPD MOSI** | GPIO 3      | SPI Data Input (DIN)     |
+| **EPD SCK**  | GPIO 2      | SPI Clock (CLK)          |
+| **EPD CS**   | GPIO 5      | Chip Select (Active Low) |
+| **EPD DC**   | GPIO 6      | Data / Command Control   |
+| **EPD RST**  | GPIO 10     | Reset                    |
+| **EPD BUSY** | GPIO 11     | Busy Status Output       |
+| **VCC**      | 3.3V OUT    | 3.3V Power Supply        |
+| **GND**      | GND         | Ground                   |
 
 ## How to Build & Flash
 
@@ -49,7 +49,7 @@ bootloader mode without unplugging the board:
 2. While holding BOOT, press and release the **RESET** button.
 3. Keep holding BOOT for one more second, then release it.
 
-The board should now appear as a USB mass storage device named **RPI-RP2**.
+The board should now appear as a USB mass storage device named "RPI-RP2".
 
 ### 3. Build the Firmware
 
@@ -107,16 +107,16 @@ The board will automatically reboot and start running your program.
 
 ## Notes
 
-- **Color Translation:** Uses a custom adapter to automatically convert
+- A 100 KB heap is carved out of the RP2040's RAM
+  to provide sufficient space for Ratatui to build and render its UI widgets.
+- We use a custom adapter to automatically convert
   Ratatui's standard colors into the black-and-white pixels the e-paper screen
   understands.
-- *Hardware Quirks & Build Requirements (`thumbv6m`)*: The RP2040-Zero lacks hardware
+- The RP2040-Zero lacks hardware
   atomics required by `ratatui`, so `portable-atomic` emulates them in software;
   additionally, the project must be built from its own directory to properly apply
   the `build-std` and `build-std-features` flags defined in its local `.cargo/config.toml`.
-- **Memory Allocation:** A **100 KB heap** is carved out of the RP2040's RAM
-  to provide sufficient space for Ratatui to build and render its UI widgets.
-- **Power Efficiency:** The CPU and screen are put to sleep between frame updates
+- The CPU and screen are put to sleep between frame updates
   to conserve power and prevent the e-ink display from ghosting.
 
 [rp2040-zero]: https://www.waveshare.com/wiki/RP2040-Zero
