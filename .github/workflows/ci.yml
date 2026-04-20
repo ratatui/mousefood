@@ -97,7 +97,7 @@ jobs:
           components: clippy
       - name: Setup Xtensa toolchain (ESP-IDF)
         if: ${{ matrix.project.setup_xtensa == true }}
-        uses: esp-rs/xtensa-toolchain@v1.6.0
+        uses: esp-rs/xtensa-toolchain@v1.7.0
         with:
           default: true
           buildtargets: esp32
@@ -172,7 +172,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: esp-rs/xtensa-toolchain@v1.6.0
+      - uses: esp-rs/xtensa-toolchain@v1.7.0
         with:
           default: true
       - uses: Swatinem/rust-cache@v2
