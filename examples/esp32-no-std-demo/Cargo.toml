@@ -29,7 +29,7 @@ mipidsi = "0.10.0"
 critical-section = "1.2.0"
 mousefood = { path = "../../mousefood/" }
 ratatui = { workspace = true, default-features = false, features = ["all-widgets"] }
-log = "0.4.27"
+log = "0.4.31"
 time = { version = "0.3.45", default-features = false }
 libm = "0.2.16"
 tui-big-text = "0.8.4"
