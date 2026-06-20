@@ -412,7 +412,7 @@ Here are some projects built using Mousefood:
 - [Mnyaoo32](https://github.com/intuis/mnyaoo32) - An eccentric way to consume IRC messages using ESP32.
 - [Phone-OS](https://github.com/Julien-cpsn/Phone-OS) - A modern phone OS for ESP32 CYD.
 - [MaraTUI](https://github.com/ololonly/maratui) - A terminal dashboard for keeping
-an eye on Lelit Mara X espresso shots.
+  an eye on Lelit Mara X espresso shots.
 
 Send a pull request to add your project here!
 
