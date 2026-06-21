@@ -16,7 +16,7 @@ fugit = "0.3.9"
 mousefood = { version = "0.5.0", default-features = false, features = ["fonts"] }
 panic-halt = "1.0.0"
 portable-atomic = { version = "1.13.1", features = ["critical-section"] }
-ratatui-core = { workspace = true, features = ["portable-atomic"] }
+ratatui = { workspace = true, features = ["portable-atomic"] }
 rp2040-boot2 = "0.3.0"
 rp2040-hal = { version = "0.12.0", features = ["critical-section-impl"] }
 
