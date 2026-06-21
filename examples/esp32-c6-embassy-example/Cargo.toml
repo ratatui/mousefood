@@ -9,10 +9,6 @@ rust-version = "1.95"
 version      = "0.1.0"
 publish = false
 
-[[bin]]
-name = "esp32-c6-embassy-example"
-path = "./src/bin/main.rs"
-
 [dependencies]
 esp-hal = { version = "~1.1.0", features = ["defmt", "esp32c6", "unstable"] }
 
