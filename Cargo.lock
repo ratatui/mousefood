@@ -1337,7 +1337,7 @@ dependencies = [
  "esp-alloc",
  "esp-bootloader-esp-idf 0.5.0",
  "esp-hal",
- "mousefood 0.5.0",
+ "mousefood 0.5.1",
  "ratatui",
  "ratatui-core",
 ]
@@ -1711,7 +1711,7 @@ dependencies = [
  "libm",
  "log",
  "mipidsi",
- "mousefood 0.5.0",
+ "mousefood 0.5.1",
  "ratatui",
  "time",
  "tui-big-text",
@@ -1724,7 +1724,7 @@ dependencies = [
  "embuild",
  "esp-idf-svc",
  "mipidsi",
- "mousefood 0.5.0",
+ "mousefood 0.5.1",
  "rand",
  "ratatui",
  "time",
@@ -2445,7 +2445,7 @@ dependencies = [
  "esp-hal",
  "esp-println",
  "lilygo-epd47",
- "mousefood 0.5.0",
+ "mousefood 0.5.1",
  "ratatui",
  "ratatui-core",
 ]
@@ -2584,6 +2584,18 @@ dependencies = [
 [[package]]
 name = "mousefood"
 version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5e822a3202a142d1fb7e32c6dfbd0e158cd8b6b326f6b5a3d1a9cdb671f73ff2"
+dependencies = [
+ "embedded-graphics",
+ "embedded-graphics-unicodefonts",
+ "ratatui-core",
+ "thiserror 2.0.18",
+]
+
+[[package]]
+name = "mousefood"
+version = "0.5.1"
 dependencies = [
  "embedded-graphics",
  "embedded-graphics-unicodefonts",
@@ -2594,18 +2606,6 @@ dependencies = [
  "rstest",
  "thiserror 2.0.18",
  "weact-studio-epd",
-]
-
-[[package]]
-name = "mousefood"
-version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5e822a3202a142d1fb7e32c6dfbd0e158cd8b6b326f6b5a3d1a9cdb671f73ff2"
-dependencies = [
- "embedded-graphics",
- "embedded-graphics-unicodefonts",
- "ratatui-core",
- "thiserror 2.0.18",
 ]
 
 [[package]]
@@ -3307,7 +3307,7 @@ dependencies = [
  "embedded-hal-bus",
  "epd-waveshare",
  "fugit",
- "mousefood 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "mousefood 0.5.0",
  "panic-halt",
  "portable-atomic",
  "ratatui",
@@ -3682,7 +3682,7 @@ name = "simulator"
 version = "0.0.0"
 dependencies = [
  "embedded-graphics-simulator",
- "mousefood 0.5.0",
+ "mousefood 0.5.1",
  "ratatui",
 ]
 
@@ -3778,7 +3778,7 @@ dependencies = [
  "embedded-alloc",
  "embedded-graphics",
  "heapless 0.9.3",
- "mousefood 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "mousefood 0.5.0",
  "panic-halt",
  "ratatui",
  "ssd1306",
