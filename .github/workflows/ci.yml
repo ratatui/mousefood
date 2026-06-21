@@ -87,6 +87,11 @@ jobs:
             dir: examples/lilygo-epd47-demo
             target: ""
             setup_xtensa: true
+          # ESP32-C6 Embassy EPD demo
+          - name: esp32-c6-embassy-example
+            dir: examples/esp32-c6-embassy-example
+            target: ""
+            setup_xtensa: true
           # RP2040-Zero EPD demo
           - name: rp2040-1in54-epd-example
             dir: examples/rp2040-1in54-epd-example

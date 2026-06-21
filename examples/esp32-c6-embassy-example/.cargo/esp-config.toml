@@ -1,0 +1,3 @@
+# Keep user/runtime configuration values in this file.
+[env]
+DEFMT_LOG="info"

@@ -1,6 +1,9 @@
 [workspace]
 resolver = "3"
 members = ["mousefood", "mousefood-extras", "examples/*"]
+exclude = [
+    "examples/esp32-c6-embassy-example",
+]
 default-members = ["mousefood"]
 
 [workspace.package]
