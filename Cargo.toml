@@ -8,7 +8,7 @@ default-members = ["mousefood"]
 
 [workspace.package]
 edition = "2024"
-rust-version = "1.86"
+rust-version = "1.88"
 license = "MIT OR Apache-2.0"
 homepage = "https://github.com/ratatui/mousefood"
 repository = "https://github.com/ratatui/mousefood"
@@ -32,14 +32,14 @@ opt-level = 's'
 overflow-checks = false
 
 [workspace.dependencies]
-ratatui-core = "0.1.0"
+ratatui-core = "0.1.2"
 thiserror = { version = "2.0.18", default-features = false }
 embedded-graphics = "0.8.2"
 embedded-graphics-simulator = "0.8.0"
 embedded-graphics-unicodefonts = "0.2.0"
 weact-studio-epd = { version = "0.1.2", features = ["blocking"] }
 epd-waveshare = "0.6.0"
-ratatui = { version = "0.30.0", default-features = false , features = ["portable-atomic"]}
+ratatui = { version = "0.30.2", default-features = false , features = ["portable-atomic"]}
 rstest = "0.26.1"
 paste = "1.0.15"
 
