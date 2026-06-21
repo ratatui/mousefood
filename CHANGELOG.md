@@ -6,8 +6,16 @@ All notable changes to this project will be documented in this file.
 
 ### 🚀 Features
 
+- *(extras)* Add `mousefood-extras` crate with `MouseFoodLogo` widget
+
+  ```rust
+  use mousefood_extras::MouseFoodLogo;
+
+  frame.render_widget(MouseFoodLogo::new(), frame.area());
+  ```
+
 - *(example)* Add RP2040-Zero example with EPD ([#187](https://github.com/ratatui/mousefood/issues/187))
-- *(example)* Add example for ESP32-C6 with embassy ([#198](https://github.com/ratatui/mousefood/issues/198))
+- *(example)* Add ESP32-C6 Embassy EPD example ([#198](https://github.com/ratatui/mousefood/issues/198))
 
 ### 🐛 Bug Fixes
 
