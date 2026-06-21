@@ -53,17 +53,19 @@ static CURRENT_IDX: AtomicUsize = AtomicUsize::new(0);
 async fn printer_task() {
     let mut idx = 0usize;
     loop {
-
         CURRENT_IDX.store(idx % MESSAGES.len(), Ordering::Relaxed);
         info!("Printer update: {}", MESSAGES[idx % MESSAGES.len()]);
 
         idx = idx.wrapping_add(1);
 
-
         Timer::after(Duration::from_secs(5)).await;
     }
 }
 
+#[allow(
+    clippy::large_stack_frames,
+    reason = "embedded display setup and the Embassy task macro require larger stack frames"
+)]
 #[esp_rtos::main]
 async fn main(spawner: Spawner) -> ! {
     rtt_target::rtt_init_defmt!();
@@ -133,7 +135,10 @@ async fn main(spawner: Spawner) -> ! {
     }
 }
 
-
+#[allow(
+    clippy::large_stack_frames,
+    reason = "ratatui widget rendering is slightly above Clippy's default embedded threshold"
+)]
 fn draw(frame: &mut Frame, msg: &str) {
     let paragraph = Paragraph::new(msg.white()).wrap(Wrap { trim: true });
     let block = Block::bordered().title("Mousefood");
