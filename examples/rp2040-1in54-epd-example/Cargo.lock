@@ -298,7 +298,7 @@ dependencies = [
  "mousefood",
  "panic-halt",
  "portable-atomic",
- "ratatui",
+ "ratatui-core",
  "rp2040-boot2",
  "rp2040-hal",
 ]
