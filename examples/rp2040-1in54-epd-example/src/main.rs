@@ -25,9 +25,7 @@ use embedded_graphics::{pixelcolor::Rgb888, prelude::*};
 use core::convert::Infallible;
 
 use mousefood::prelude::*;
-use ratatui::style::Style;
-use ratatui::widgets::{Block, Paragraph, Wrap};
-use ratatui::{Frame, Terminal};
+use ratatui_core::terminal::{Frame, Terminal};
 
 #[global_allocator]
 static HEAP: Heap = Heap::empty();
@@ -41,7 +39,7 @@ use alloc::boxed::Box;
 #[used]
 pub static BOOT2: [u8; 256] = rp2040_boot2::BOOT_LOADER_GENERIC_03H;
 
-/// Adapter converting `Rgb888` (ratatui) to `BinaryColor` (e-paper driver)
+/// Adapter converting `Rgb888` to `BinaryColor` for the e-paper driver.
 pub struct DisplayAdapter(pub Display1in54);
 
 impl Dimensions for DisplayAdapter {
@@ -140,13 +138,5 @@ fn main() -> ! {
 }
 
 fn draw(frame: &mut Frame) {
-    let text = "Ratatui on Embedded devices";
-
-    let epaper_theme = Style::default()
-        .fg(ratatui::style::Color::Black)
-        .bg(ratatui::style::Color::White);
-
-    let paragraph = Paragraph::new(text).wrap(Wrap { trim: true });
-    let bordered_block = Block::bordered().title("Mousefood").style(epaper_theme);
-    frame.render_widget(paragraph.block(bordered_block), frame.area());
+    frame.render_widget("Hello mousefood", frame.area());
 }
