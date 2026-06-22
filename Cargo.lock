@@ -3371,7 +3371,6 @@ dependencies = [
  "embedded-hal 1.0.0",
  "embedded-hal-bus",
  "epd-waveshare",
- "fugit",
  "mousefood 0.5.0",
  "panic-halt",
  "portable-atomic",

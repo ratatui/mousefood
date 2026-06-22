@@ -8,11 +8,11 @@ use epd_waveshare::{
     epd1in54_v2::{Display1in54, Epd1in54},
     prelude::WaveshareDisplay,
 };
-use fugit::RateExtU32;
 use panic_halt as _;
 use rp2040_hal::{
     Sio,
     clocks::{Clock, init_clocks_and_plls},
+    fugit::RateExtU32,
     gpio::{FunctionSio, FunctionSpi, Pin, PullDown, PullUp, SioInput, SioOutput},
     pac,
     spi::Spi,
