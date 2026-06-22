@@ -12,7 +12,7 @@ categories = ["no-std", "graphics"]
 
 [dependencies]
 indoc = "2"
-itertools = { version = "0.14", default-features = false }
+itertools = { version = "0.15", default-features = false }
 ratatui-core.workspace = true
 
 [dev-dependencies]
