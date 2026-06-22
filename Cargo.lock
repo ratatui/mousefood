@@ -1505,7 +1505,7 @@ dependencies = [
  "esp32h2",
  "esp32s2",
  "esp32s3 0.34.0",
- "fugit",
+ "fugit 0.3.9",
  "instability",
  "log",
  "nb 1.1.0",
@@ -1957,6 +1957,15 @@ name = "fugit"
 version = "0.3.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4e639847d312d9a82d2e75b0edcc1e934efcc64e6cb7aa94f0b1fbec0bc231d6"
+dependencies = [
+ "gcd",
+]
+
+[[package]]
+name = "fugit"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "04ae150b98ef345142101da0a0b4ccfcc577bc8f5b9778b852e9427c667654d3"
 dependencies = [
  "gcd",
 ]
@@ -3357,7 +3366,7 @@ version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8288358786b1458fb2caac8c4b40fb529ef4200d6c46467e2695b7a8ba573ae8"
 dependencies = [
- "fugit",
+ "fugit 0.3.9",
 ]
 
 [[package]]
@@ -3371,7 +3380,7 @@ dependencies = [
  "embedded-hal 1.0.0",
  "embedded-hal-bus",
  "epd-waveshare",
- "fugit",
+ "fugit 0.4.0",
  "mousefood 0.5.0",
  "panic-halt",
  "portable-atomic",
@@ -3405,7 +3414,7 @@ dependencies = [
  "embedded-hal-nb",
  "embedded-io 0.7.1",
  "frunk",
- "fugit",
+ "fugit 0.3.9",
  "itertools 0.10.5",
  "nb 1.1.0",
  "paste",
