@@ -381,6 +381,13 @@ Successfully tested on:
 
 For every driver, the list of displays is not exhaustive.
 
+For displays using embedded-graphics' `Gray2`, `Gray4`, or `Gray8` pixel colors,
+enable the `monochrome` feature to convert Ratatui colors to grayscale:
+
+```toml
+mousefood = { version = "*", features = ["monochrome"] }
+```
+
 - [ssd1306](https://crates.io/crates/ssd1306) for SSD1306
 - [mipidsi](https://crates.io/crates/mipidsi) for ILI9341, ST7735, etc.
 - [epd-waveshare](https://crates.io/crates/epd-waveshare) for e-paper displays from Waveshare

@@ -1,9 +1,11 @@
 use crate::macros::for_all_rgb_colors;
-#[cfg(feature = "lilygo-epd47")]
+#[cfg(any(feature = "lilygo-epd47", feature = "monochrome"))]
 use embedded_graphics::pixelcolor::Gray4;
 use embedded_graphics::pixelcolor::{
     Bgr555, Bgr565, Bgr666, Bgr888, BinaryColor, Rgb555, Rgb565, Rgb666, Rgb888, RgbColor,
 };
+#[cfg(feature = "monochrome")]
+use embedded_graphics::pixelcolor::{Gray2, Gray8};
 use ratatui_core::style::Color;
 
 /// Defines how ratatui colors should be mapped to the display colors.
@@ -243,8 +245,24 @@ impl From<TermColor<'_>> for epd_waveshare::color::TriColor {
     }
 }
 
-#[cfg(feature = "lilygo-epd47")]
+#[cfg(any(feature = "lilygo-epd47", feature = "monochrome"))]
 impl<'a> From<TermColor<'a>> for Gray4 {
+    fn from(color: TermColor<'a>) -> Self {
+        let rgb: Rgb888 = color.into();
+        rgb.into()
+    }
+}
+
+#[cfg(feature = "monochrome")]
+impl<'a> From<TermColor<'a>> for Gray2 {
+    fn from(color: TermColor<'a>) -> Self {
+        let rgb: Rgb888 = color.into();
+        rgb.into()
+    }
+}
+
+#[cfg(feature = "monochrome")]
+impl<'a> From<TermColor<'a>> for Gray8 {
     fn from(color: TermColor<'a>) -> Self {
         let rgb: Rgb888 = color.into();
         rgb.into()
@@ -256,6 +274,8 @@ mod tests {
     use super::*;
     use Color::*;
     use TermColorType::*;
+    #[cfg(any(feature = "lilygo-epd47", feature = "monochrome"))]
+    use embedded_graphics::pixelcolor::GrayColor;
     use paste::paste;
     use rstest::rstest;
 
@@ -329,6 +349,45 @@ mod tests {
         #[case] color_into: BinaryColor,
     ) {
         let output: BinaryColor = themed(color_type, color_from).into();
+        assert_eq!(output, color_into);
+    }
+
+    #[cfg(any(feature = "lilygo-epd47", feature = "monochrome"))]
+    #[rstest]
+    #[case(Foreground, Black, Gray4::BLACK)]
+    #[case(Background, White, Gray4::WHITE)]
+    fn into_gray4(
+        #[case] color_type: TermColorType,
+        #[case] color_from: Color,
+        #[case] color_into: Gray4,
+    ) {
+        let output: Gray4 = themed(color_type, color_from).into();
+        assert_eq!(output, color_into);
+    }
+
+    #[cfg(feature = "monochrome")]
+    #[rstest]
+    #[case(Foreground, Black, Gray2::BLACK)]
+    #[case(Background, White, Gray2::WHITE)]
+    fn into_gray2(
+        #[case] color_type: TermColorType,
+        #[case] color_from: Color,
+        #[case] color_into: Gray2,
+    ) {
+        let output: Gray2 = themed(color_type, color_from).into();
+        assert_eq!(output, color_into);
+    }
+
+    #[cfg(feature = "monochrome")]
+    #[rstest]
+    #[case(Foreground, Black, Gray8::BLACK)]
+    #[case(Background, White, Gray8::WHITE)]
+    fn into_gray8(
+        #[case] color_type: TermColorType,
+        #[case] color_from: Color,
+        #[case] color_into: Gray8,
+    ) {
+        let output: Gray8 = themed(color_type, color_from).into();
         assert_eq!(output, color_into);
     }
 
