@@ -1346,7 +1346,7 @@ dependencies = [
  "critical-section",
  "embedded-hal-bus",
  "epd-waveshare",
- "esp-alloc",
+ "esp-alloc 0.10.0",
  "esp-bootloader-esp-idf 0.5.0",
  "esp-hal",
  "mousefood 0.5.2",
@@ -1381,7 +1381,23 @@ dependencies = [
  "document-features",
  "enumset",
  "esp-config 0.6.1",
- "esp-sync",
+ "esp-sync 0.1.1",
+ "linked_list_allocator",
+ "rlsf",
+]
+
+[[package]]
+name = "esp-alloc"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "46ced060d4085858283df950b80a4da2348e1707d7d07b1e966308582dae79f5"
+dependencies = [
+ "allocator-api2 0.3.1",
+ "cfg-if",
+ "document-features",
+ "enumset",
+ "esp-config 0.7.0",
+ "esp-sync 0.2.1",
  "linked_list_allocator",
  "rlsf",
 ]
@@ -1496,7 +1512,7 @@ dependencies = [
  "esp-metadata-generated 0.3.0",
  "esp-riscv-rt",
  "esp-rom-sys",
- "esp-sync",
+ "esp-sync 0.1.1",
  "esp-synopsys-usb-otg",
  "esp32 0.39.0",
  "esp32c2",
@@ -1634,7 +1650,7 @@ checksum = "5a30e6c9fbcc01c348d46706fef8131c7775ab84c254a3cd65d0cd3f6414d592"
 dependencies = [
  "document-features",
  "esp-metadata-generated 0.3.0",
- "esp-sync",
+ "esp-sync 0.1.1",
  "log",
  "portable-atomic",
 ]
@@ -1679,6 +1695,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "esp-sync"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b4736bfbbb9e3f6353344e14fc61b6d18d3b877c3286914cf8c0a037be0ed224"
+dependencies = [
+ "cfg-if",
+ "document-features",
+ "embassy-sync 0.6.2",
+ "embassy-sync 0.7.2",
+ "embassy-sync 0.8.0",
+ "esp-metadata-generated 0.4.0",
+ "riscv",
+ "xtensa-lx",
+]
+
+[[package]]
 name = "esp-synopsys-usb-otg"
 version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1716,7 +1748,7 @@ version = "0.1.0"
 dependencies = [
  "critical-section",
  "embedded-hal-bus",
- "esp-alloc",
+ "esp-alloc 0.10.0",
  "esp-bootloader-esp-idf 0.5.0",
  "esp-hal",
  "esp-println",
@@ -2465,7 +2497,7 @@ checksum = "a72710f872095a976b7513e0afd27d8861d31d26492165ffdcede637fd01b653"
 dependencies = [
  "critical-section",
  "embedded-graphics-core",
- "esp-alloc",
+ "esp-alloc 0.9.0",
  "esp-bootloader-esp-idf 0.4.0",
  "esp-hal",
  "log",
@@ -2477,7 +2509,7 @@ version = "0.1.0"
 dependencies = [
  "critical-section",
  "embedded-graphics",
- "esp-alloc",
+ "esp-alloc 0.10.0",
  "esp-backtrace",
  "esp-bootloader-esp-idf 0.5.0",
  "esp-hal",
