@@ -4437,9 +4437,9 @@ dependencies = [
 
 [[package]]
 name = "weact-studio-epd"
-version = "0.1.2"
+version = "0.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3e531b21e70dfc6294be2429e4f616f634c8ca1a328325dceefc4f92c12d6e9b"
+checksum = "6809de473b1751a517075755b975f382a492521afcb7965568947664da623665"
 dependencies = [
  "display-interface",
  "embedded-graphics",
