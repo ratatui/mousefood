@@ -40,7 +40,7 @@ embedded-graphics-unicodefonts = "0.2.0"
 weact-studio-epd = { version = "0.1.2", features = ["blocking"] }
 epd-waveshare = "0.6.0"
 ratatui = { version = "0.30.2", default-features = false , features = ["portable-atomic"]}
-rstest = "0.26.1"
+rstest = "0.27.0"
 paste = "1.0.15"
 
 [workspace.lints.rust]
