@@ -23,10 +23,3 @@ ssd1306 = { version = "0.10.0", features = ["async"] }
 name = "stm32_nucleo_oled_example"
 test = false
 bench = false
-
-[profile.release]
-opt-level = "z"
-codegen-units = 1
-lto = true
-strip = true
-panic = "abort"
