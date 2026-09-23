@@ -1,0 +1,38 @@
+[workspace]
+members = ["."]
+resolver = "2"
+
+[package]
+edition      = "2024"
+name         = "esp32s3-no-std-example"
+rust-version = "1.88"
+version      = "0.1.0"
+publish      = false
+
+[[bin]]
+name = "esp32s3-no-std-example"
+path = "./src/bin/main.rs"
+
+[dependencies]
+esp-hal = { version = "~1.1.0", features = ["esp32s3", "unstable"] }
+esp-println = { version = "0.16.1", features = ["esp32s3"] }
+esp-bootloader-esp-idf = { version = "0.5.0", features = ["esp32s3"] }
+esp-alloc = "0.9.0"
+embedded-hal-bus = "0.3.0"
+mipidsi = "0.10.0"
+mousefood = { path = "../../mousefood" }
+ratatui = { version = "0.30.2", default-features = false, features = ["portable-atomic"] }
+critical-section = "1.2.0"
+
+
+# For fine tuning these settings, please refer to https://doc.rust-lang.org/cargo/reference/profiles.html
+[profile.dev]
+# The default debug profile is too slow and too big for resource-constrained devices.
+# Always build with some optimizations enabled.
+opt-level = "s"
+
+[profile.release]
+codegen-units = 1     # LLVM can perform better optimizations using a single thread
+debug         = 2     # prefer slower builds but better debugging experience
+lto           = 'fat'
+opt-level     = 's'

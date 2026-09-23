@@ -72,6 +72,11 @@ jobs:
             dir: examples/esp32-no-std-demo
             target: ""
             setup_xtensa: true
+          # ESP32-S3 no-std example
+          - name: esp32s3-no-std-example
+            dir: examples/esp32s3-no-std-example
+            target: ""
+            setup_xtensa: true
           # EPD Waveshare demo
           - name: epd-waveshare-demo
             dir: examples/epd-waveshare-demo

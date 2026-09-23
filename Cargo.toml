@@ -3,6 +3,7 @@ resolver = "3"
 members = ["mousefood", "mousefood-extras", "examples/*"]
 exclude = [
     "examples/esp32-c6-embassy-example",
+    "examples/esp32s3-no-std-example",
 ]
 default-members = ["mousefood"]
 
