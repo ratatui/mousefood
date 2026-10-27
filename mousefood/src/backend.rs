@@ -111,6 +111,23 @@ impl Default for BlinkConfig {
     }
 }
 
+/// The target cells are drawn to: the framebuffer if enabled, otherwise the display.
+///
+/// A macro rather than a method so it borrows only that field, leaving the rest of the backend
+/// (e.g. fonts referenced by a text style) available.
+macro_rules! draw_target {
+    ($backend:expr) => {{
+        #[cfg(feature = "framebuffer")]
+        {
+            &mut $backend.buffer
+        }
+        #[cfg(not(feature = "framebuffer"))]
+        {
+            &mut *$backend.display
+        }
+    }};
+}
+
 /// Embedded backend configuration.
 pub struct EmbeddedBackendConfig<D, C>
 where
@@ -358,31 +375,15 @@ where
         Ok(())
     }
 
-    #[cfg(feature = "framebuffer")]
     fn clear(&mut self) -> Result<()> {
-        self.buffer
-            .clear(
-                TermColor::new(
-                    style::Color::Reset,
-                    TermColorType::Background,
-                    &self.color_theme,
-                )
-                .into(),
-            )
-            .map_err(|_| crate::error::Error::DrawError)
-    }
-
-    #[cfg(not(feature = "framebuffer"))]
-    fn clear(&mut self) -> Result<()> {
-        self.display
-            .clear(
-                TermColor::new(
-                    style::Color::Reset,
-                    TermColorType::Background,
-                    &self.color_theme,
-                )
-                .into(),
-            )
+        let color = TermColor::new(
+            style::Color::Reset,
+            TermColorType::Background,
+            &self.color_theme,
+        )
+        .into();
+        draw_target!(self)
+            .clear(color)
             .map_err(|_| crate::error::Error::DrawError)
     }
 
@@ -523,12 +524,7 @@ where
             style_builder.build(),
             embedded_graphics::text::Baseline::Top,
         )
-        .draw(
-            #[cfg(feature = "framebuffer")]
-            &mut self.buffer,
-            #[cfg(not(feature = "framebuffer"))]
-            self.display,
-        )
+        .draw(draw_target!(self))
         .map_err(|_| crate::error::Error::DrawError)?;
 
         Ok(())
