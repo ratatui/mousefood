@@ -111,6 +111,23 @@ impl Default for BlinkConfig {
     }
 }
 
+/// The target cells are drawn to: the framebuffer if enabled, otherwise the display.
+///
+/// A macro rather than a method so it borrows only that field, leaving the rest of the backend
+/// (e.g. fonts referenced by a text style) available.
+macro_rules! draw_target {
+    ($backend:expr) => {{
+        #[cfg(feature = "framebuffer")]
+        {
+            &mut $backend.buffer
+        }
+        #[cfg(not(feature = "framebuffer"))]
+        {
+            &mut *$backend.display
+        }
+    }};
+}
+
 /// Embedded backend configuration.
 pub struct EmbeddedBackendConfig<D, C>
 where
@@ -358,31 +375,15 @@ where
         Ok(())
     }
 
-    #[cfg(feature = "framebuffer")]
     fn clear(&mut self) -> Result<()> {
-        self.buffer
-            .clear(
-                TermColor::new(
-                    style::Color::Reset,
-                    TermColorType::Background,
-                    &self.color_theme,
-                )
-                .into(),
-            )
-            .map_err(|_| crate::error::Error::DrawError)
-    }
-
-    #[cfg(not(feature = "framebuffer"))]
-    fn clear(&mut self) -> Result<()> {
-        self.display
-            .clear(
-                TermColor::new(
-                    style::Color::Reset,
-                    TermColorType::Background,
-                    &self.color_theme,
-                )
-                .into(),
-            )
+        let color = TermColor::new(
+            style::Color::Reset,
+            TermColorType::Background,
+            &self.color_theme,
+        )
+        .into();
+        draw_target!(self)
+            .clear(color)
             .map_err(|_| crate::error::Error::DrawError)
     }
 
@@ -517,20 +518,61 @@ where
             );
         }
 
+        let decorated = cell
+            .modifier
+            .intersects(style::Modifier::UNDERLINED | style::Modifier::CROSSED_OUT);
+        if !decorated && let Some(quadrants) = block_quadrants(cell.symbol()) {
+            return self.draw_block(position + self.char_offset, quadrants, fg_color, bg_color);
+        }
+
         Text::with_baseline(
             cell.symbol(),
             position + self.char_offset,
             style_builder.build(),
             embedded_graphics::text::Baseline::Top,
         )
-        .draw(
-            #[cfg(feature = "framebuffer")]
-            &mut self.buffer,
-            #[cfg(not(feature = "framebuffer"))]
-            self.display,
-        )
+        .draw(draw_target!(self))
         .map_err(|_| crate::error::Error::DrawError)?;
 
+        Ok(())
+    }
+
+    /// Fill a cell's background and its foreground quadrants as rectangles, which is much
+    /// cheaper than rendering the glyph through the font and fills the cell exactly.
+    fn draw_block(&mut self, origin: geometry::Point, quadrants: u8, fg: C, bg: C) -> Result<()> {
+        use embedded_graphics::primitives::Rectangle;
+        let size = self.font_regular.character_size;
+        let (left, top) = (size.width / 2, size.height / 2);
+        let target = draw_target!(self);
+        let fill = |target: &mut _, x: u32, y: u32, w: u32, h: u32, color: C| {
+            let rect = Rectangle::new(
+                origin + geometry::Point::new(x as i32, y as i32),
+                geometry::Size::new(w, h),
+            );
+            DrawTarget::fill_solid(target, &rect, color).map_err(|_| crate::error::Error::DrawError)
+        };
+        if quadrants != 0b1111 {
+            fill(target, 0, 0, size.width, size.height, bg)?;
+        }
+        let quads = [
+            (0b0001, 0, 0, left, top),
+            (0b0010, left, 0, size.width - left, top),
+            (0b0100, 0, top, left, size.height - top),
+            (0b1000, left, top, size.width - left, size.height - top),
+        ];
+        match quadrants {
+            0 => {}
+            0b1111 => fill(target, 0, 0, size.width, size.height, fg)?,
+            0b0011 => fill(target, 0, 0, size.width, top, fg)?,
+            0b1100 => fill(target, 0, top, size.width, size.height - top, fg)?,
+            _ => {
+                for (bit, x, y, w, h) in quads {
+                    if quadrants & bit != 0 {
+                        fill(target, x, y, w, h, fg)?;
+                    }
+                }
+            }
+        }
         Ok(())
     }
 
@@ -559,6 +601,30 @@ where
     }
 }
 
+/// Quadrants covered by a block element (bit 0 top-left, 1 top-right, 2 bottom-left,
+/// 3 bottom-right), or `None` for symbols that need the font.
+fn block_quadrants(symbol: &str) -> Option<u8> {
+    Some(match symbol {
+        " " => 0b0000,
+        "█" => 0b1111,
+        "▀" => 0b0011,
+        "▄" => 0b1100,
+        "▌" => 0b0101,
+        "▐" => 0b1010,
+        "▘" => 0b0001,
+        "▝" => 0b0010,
+        "▖" => 0b0100,
+        "▗" => 0b1000,
+        "▚" => 0b1001,
+        "▞" => 0b0110,
+        "▙" => 0b1101,
+        "▛" => 0b0111,
+        "▜" => 0b1011,
+        "▟" => 0b1110,
+        _ => return None,
+    })
+}
+
 #[cfg(test)]
 mod tests {
     use {
@@ -584,6 +650,50 @@ mod tests {
     #[fixture]
     fn display1() -> MockDisplay<Rgb888> {
         display0()
+    }
+
+    #[rstest]
+    #[case("▀", [true, true, false, false])]
+    #[case("▄", [false, false, true, true])]
+    #[case("▚", [true, false, false, true])]
+    #[case("█", [true, true, true, true])]
+    #[case(" ", [false, false, false, false])]
+    fn block_characters_fill_quadrants(
+        mut display0: MockDisplay<Rgb888>,
+        #[case] symbol: &str,
+        #[case] expected: [bool; 4],
+    ) {
+        use ratatui::style::{Color, Style};
+        let config = EmbeddedBackendConfig {
+            font_regular: FONT_4X6,
+            ..Default::default()
+        };
+        let backend = EmbeddedBackend::new(&mut display0, config);
+        let mut terminal = Terminal::new(backend).unwrap();
+        terminal
+            .draw(|frame| {
+                frame.buffer_mut()[(0, 0)].set_symbol(symbol).set_style(
+                    Style::new()
+                        .fg(Color::Rgb(255, 0, 0))
+                        .bg(Color::Rgb(0, 0, 255)),
+                );
+            })
+            .unwrap();
+        drop(terminal);
+        // FONT_4X6 cells: quadrants are 2x3 px; sample one pixel in each.
+        let samples = [(0, 0), (3, 0), (0, 5), (3, 5)];
+        for ((x, y), fg) in samples.into_iter().zip(expected) {
+            let want = if fg {
+                Rgb888::new(255, 0, 0)
+            } else {
+                Rgb888::new(0, 0, 255)
+            };
+            assert_eq!(
+                display0.get_pixel(Point::new(x, y)),
+                Some(want),
+                "{symbol} at ({x},{y})"
+            );
+        }
     }
 
     #[rstest]
