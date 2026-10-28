@@ -129,7 +129,41 @@ impl ColorTheme {
             Color::DarkGray => self.dark_gray,
 
             Color::Rgb(r, g, b) => Rgb888::new(r, g, b),
-            Color::Indexed(_) => Rgb888::BLACK,
+            Color::Indexed(index) => self.resolve_indexed(index),
+        }
+    }
+
+    /// Indexes 0-15 use the theme's ANSI colors; 16-255 use the standard xterm palette.
+    fn resolve_indexed(&self, index: u8) -> Rgb888 {
+        const ANSI: [Color; 16] = [
+            Color::Black,
+            Color::Red,
+            Color::Green,
+            Color::Yellow,
+            Color::Blue,
+            Color::Magenta,
+            Color::Cyan,
+            Color::Gray,
+            Color::DarkGray,
+            Color::LightRed,
+            Color::LightGreen,
+            Color::LightYellow,
+            Color::LightBlue,
+            Color::LightMagenta,
+            Color::LightCyan,
+            Color::White,
+        ];
+        match index {
+            0..=15 => self.resolve(ANSI[index as usize], TermColorType::Foreground),
+            16..=231 => {
+                let i = index - 16;
+                let level = |v: u8| if v == 0 { 0 } else { 55 + v * 40 };
+                Rgb888::new(level(i / 36), level((i / 6) % 6), level(i % 6))
+            }
+            232..=255 => {
+                let v = 8 + (index - 232) * 10;
+                Rgb888::new(v, v, v)
+            }
         }
     }
 }
@@ -283,6 +317,18 @@ mod tests {
 
     fn themed(color_type: TermColorType, color_from: Color) -> TermColor<'static> {
         TermColor::new(color_from, color_type, &TEST_THEME)
+    }
+
+    #[rstest]
+    #[case(1, TEST_THEME.red)]
+    #[case(15, TEST_THEME.white)]
+    #[case(16, Rgb888::new(0, 0, 0))]
+    #[case(196, Rgb888::new(255, 0, 0))]
+    #[case(231, Rgb888::new(255, 255, 255))]
+    #[case(236, Rgb888::new(48, 48, 48))]
+    #[case(252, Rgb888::new(208, 208, 208))]
+    fn indexed_colors(#[case] index: u8, #[case] expected: Rgb888) {
+        assert_eq!(TEST_THEME.resolve(Indexed(index), Foreground), expected);
     }
 
     macro_rules! into_eg_color {
