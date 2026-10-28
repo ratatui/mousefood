@@ -11,7 +11,9 @@ use embedded_graphics::draw_target::DrawTarget;
 use embedded_graphics::geometry::{self, Dimensions};
 use embedded_graphics::mono_font::{MonoFont, MonoTextStyleBuilder};
 use embedded_graphics::pixelcolor::{PixelColor, Rgb888};
+use embedded_graphics::primitives::Rectangle;
 use embedded_graphics::text::Text;
+use embedded_graphics::transform::Transform;
 use ratatui_core::backend::{Backend, ClearType};
 use ratatui_core::layout;
 use ratatui_core::style;
@@ -537,41 +539,17 @@ where
         Ok(())
     }
 
-    /// Fill a cell's background and its foreground quadrants as rectangles, which is much
-    /// cheaper than rendering the glyph through the font and fills the cell exactly.
+    /// Fill a cell's quadrants as rectangles, which is much cheaper than rendering the glyph
+    /// through the font and fills the cell exactly.
     fn draw_block(&mut self, origin: geometry::Point, quadrants: u8, fg: C, bg: C) -> Result<()> {
-        use embedded_graphics::primitives::Rectangle;
         let size = self.font_regular.character_size;
-        let (left, top) = (size.width / 2, size.height / 2);
+        // A cell drawn in one color (e.g. `HIDDEN`) needs only one fill.
+        let quadrants = if fg == bg { 0 } else { quadrants };
         let target = draw_target!(self);
-        let fill = |target: &mut _, x: u32, y: u32, w: u32, h: u32, color: C| {
-            let rect = Rectangle::new(
-                origin + geometry::Point::new(x as i32, y as i32),
-                geometry::Size::new(w, h),
-            );
-            DrawTarget::fill_solid(target, &rect, color).map_err(|_| crate::error::Error::DrawError)
-        };
-        if quadrants != 0b1111 {
-            fill(target, 0, 0, size.width, size.height, bg)?;
-        }
-        let quads = [
-            (0b0001, 0, 0, left, top),
-            (0b0010, left, 0, size.width - left, top),
-            (0b0100, 0, top, left, size.height - top),
-            (0b1000, left, top, size.width - left, size.height - top),
-        ];
-        match quadrants {
-            0 => {}
-            0b1111 => fill(target, 0, 0, size.width, size.height, fg)?,
-            0b0011 => fill(target, 0, 0, size.width, top, fg)?,
-            0b1100 => fill(target, 0, top, size.width, size.height - top, fg)?,
-            _ => {
-                for (bit, x, y, w, h) in quads {
-                    if quadrants & bit != 0 {
-                        fill(target, x, y, w, h, fg)?;
-                    }
-                }
-            }
+        for (rect, is_fg) in block_rects(size, quadrants) {
+            let color = if is_fg { fg } else { bg };
+            DrawTarget::fill_solid(target, &rect.translate(origin), color)
+                .map_err(|_| crate::error::Error::DrawError)?;
         }
         Ok(())
     }
@@ -625,6 +603,33 @@ fn block_quadrants(symbol: &str) -> Option<u8> {
     })
 }
 
+/// Rectangles, relative to the cell origin, that draw a block element in a cell of `size`, and
+/// whether each is foreground.
+///
+/// The cell is split into top and bottom halves only if they differ, and into left and right
+/// halves only if they differ, so each pixel is covered once by one, two, or four rectangles.
+fn block_rects(size: geometry::Size, quadrants: u8) -> impl Iterator<Item = (Rectangle, bool)> {
+    // (index, start, length) of each half along an axis, or the whole axis if not split.
+    let halves = |split: bool, len: u32| {
+        let first = if split { len / 2 } else { len };
+        [(0, first), (first, len - first)]
+            .into_iter()
+            .enumerate()
+            .filter(|&(_, (_, part))| part > 0)
+    };
+    let split_rows = quadrants & 0b0011 != quadrants >> 2;
+    let split_columns = quadrants & 0b0101 != (quadrants >> 1) & 0b0101;
+    halves(split_rows, size.height).flat_map(move |(row, (y, height))| {
+        halves(split_columns, size.width).map(move |(column, (x, width))| {
+            let rect = Rectangle::new(
+                geometry::Point::new(x as i32, y as i32),
+                geometry::Size::new(width, height),
+            );
+            (rect, quadrants & 1 << (row * 2 + column) != 0)
+        })
+    })
+}
+
 #[cfg(test)]
 mod tests {
     use {
@@ -652,10 +657,66 @@ mod tests {
         display0()
     }
 
+    /// Every quadrant pattern, at even and odd cell sizes, covers each pixel exactly once with
+    /// the quadrant's foreground or background.
+    #[rstest]
+    fn block_rects_cover_each_pixel_once(
+        #[values(
+            geometry::Size::new(4, 6),
+            geometry::Size::new(5, 7),
+            geometry::Size::new(6, 10),
+            geometry::Size::new(1, 1)
+        )]
+        size: geometry::Size,
+    ) {
+        for quadrants in 0..16u8 {
+            let mut hits = alloc::vec![(0u32, None); (size.width * size.height) as usize];
+            for (rect, is_fg) in block_rects(size, quadrants) {
+                for p in rect.points() {
+                    let hit = &mut hits[(p.y as u32 * size.width + p.x as u32) as usize];
+                    *hit = (hit.0 + 1, Some(is_fg));
+                }
+            }
+            for (i, (count, color)) in hits.into_iter().enumerate() {
+                let (x, y) = (i as u32 % size.width, i as u32 / size.width);
+                let bit = match (x < size.width / 2, y < size.height / 2) {
+                    (true, true) => 0b0001,
+                    (false, true) => 0b0010,
+                    (true, false) => 0b0100,
+                    (false, false) => 0b1000,
+                };
+                let want = quadrants & bit != 0;
+                assert_eq!(
+                    count, 1,
+                    "{quadrants:04b} {size:?} ({x},{y}) drawn {count} times"
+                );
+                assert_eq!(color, Some(want), "{quadrants:04b} {size:?} ({x},{y})");
+            }
+        }
+    }
+
+    /// Halves of the same color are merged rather than drawn as separate quadrants.
+    #[rstest]
+    #[case(0b0000, 1)]
+    #[case(0b1111, 1)]
+    #[case(0b0011, 2)]
+    #[case(0b0101, 2)]
+    #[case(0b1001, 4)]
+    #[case(0b1101, 4)]
+    fn block_rects_merge_matching_halves(#[case] quadrants: u8, #[case] count: usize) {
+        assert_eq!(
+            block_rects(geometry::Size::new(6, 10), quadrants).count(),
+            count
+        );
+    }
+
     #[rstest]
     #[case("▀", [true, true, false, false])]
     #[case("▄", [false, false, true, true])]
+    #[case("▌", [true, false, true, false])]
+    #[case("▐", [false, true, false, true])]
     #[case("▚", [true, false, false, true])]
+    #[case("▙", [true, false, true, true])]
     #[case("█", [true, true, true, true])]
     #[case(" ", [false, false, false, false])]
     fn block_characters_fill_quadrants(
