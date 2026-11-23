@@ -991,7 +991,7 @@ dependencies = [
  "embedded-storage",
  "embedded-storage-async",
  "futures-util",
- "heapless 0.9.3",
+ "heapless 0.9.4",
  "nb 1.1.0",
  "proc-macro2",
  "quote",
@@ -1046,7 +1046,7 @@ dependencies = [
  "embedded-io-async 0.7.0",
  "futures-core",
  "futures-sink",
- "heapless 0.9.3",
+ "heapless 0.9.4",
 ]
 
 [[package]]
@@ -1279,7 +1279,7 @@ dependencies = [
  "embedded-io 0.7.1",
  "embedded-io-async 0.7.0",
  "enumset",
- "heapless 0.9.3",
+ "heapless 0.9.4",
  "num_enum",
  "serde",
  "strum 0.27.2",
@@ -1424,7 +1424,7 @@ dependencies = [
  "esp-config",
  "esp-metadata-generated",
  "esp-println",
- "heapless 0.9.3",
+ "heapless 0.9.4",
  "riscv",
  "semihosting",
  "xtensa-lx",
@@ -1554,7 +1554,7 @@ dependencies = [
  "embuild",
  "enumset",
  "esp-idf-sys",
- "heapless 0.9.3",
+ "heapless 0.9.4",
  "log",
  "nb 1.1.0",
 ]
@@ -1572,7 +1572,7 @@ dependencies = [
  "enumset",
  "esp-idf-hal",
  "futures-io",
- "heapless 0.9.3",
+ "heapless 0.9.4",
  "log",
  "num_enum",
  "uncased",
@@ -2085,9 +2085,9 @@ dependencies = [
 
 [[package]]
 name = "heapless"
-version = "0.9.3"
+version = "0.9.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "25ba4bd83f9415b58b4ed8dc5714c76e626a105be4646c02630ad730ad3b5aa4"
+checksum = "411fdef4df93751117bd9ef8caa0e7f99c65dafec5bd84313eb8e2fdd75e32f2"
 dependencies = [
  "hash32",
  "stable_deref_trait",
@@ -3788,7 +3788,7 @@ dependencies = [
  "embassy-time",
  "embedded-alloc",
  "embedded-graphics",
- "heapless 0.9.3",
+ "heapless 0.9.4",
  "mousefood 0.5.0",
  "panic-halt",
  "ratatui",
